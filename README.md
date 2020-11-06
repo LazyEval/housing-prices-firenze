@@ -1,7 +1,18 @@
 housing_prices_firenze
 ==============================
 
-Predicting the housing prioces in Firenze.
+### 1. Aim of the project
+This project aims at predicting the housing prices in Firenze, Italy based on data from October 2020. This analysis does not take *time* into account, i.e. there is no timeseries analysis, as it is solely based on data obtained at a single point in time. The main idea is therefore to simply give a rough idea of the value of a house/apartment based on a series of features that still need to be fully determined.
+
+The main steps of this project include:
+
+    1. Web scraping to collect data
+    2. Data cleaning and pre-processing
+    3. Modeling
+    4. Designing a simple frontend
+    5. Testing
+
+The aforementioned steps are generally first carried out using *Jupyter notebooks* but are then progressively refactored as source code using software engineering best practices. In this sense, the project organization, **based on drivendata's data science cookiecutter template**, is as follows:
 
 Project Organization
 ------------
