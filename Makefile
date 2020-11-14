@@ -20,6 +20,9 @@ endif
 # COMMANDS                                                                      #
 #################################################################################
 
+## Clean, data
+all: clean data
+
 ## Install Python Dependencies
 requirements: test_environment
 	$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
@@ -27,7 +30,7 @@ requirements: test_environment
 
 ## Make Dataset
 data: requirements
-	$(PYTHON_INTERPRETER) src/data/make_dataset.py data/raw data/processed
+	$(PYTHON_INTERPRETER) src/data/make_dataset.py data/test data/test
 
 ## Delete all compiled Python files
 clean:

@@ -3,17 +3,28 @@ import click
 import logging
 from pathlib import Path
 from dotenv import find_dotenv, load_dotenv
+from src.data import WebScraper
 
 
 @click.command()
 @click.argument('input_filepath', type=click.Path(exists=True))
 @click.argument('output_filepath', type=click.Path())
 def main(input_filepath, output_filepath):
-    """ Runs data processing scripts to turn raw data from (../raw) into
-        cleaned data ready to be analyzed (saved in ../processed).
-    """
+    """ Runs data collecting scripts to collect data and save it in ../interim."""
     logger = logging.getLogger(__name__)
-    logger.info('making final data set from raw data')
+    logger.info('Collecting and saving data.')
+
+    immobiliare = 'https://www.immobiliare.it/vendita-case/firenze/'
+    n_pages = 366
+
+    # Collect data
+    scraper = WebScraper(raw_dir=input_filepath, interim_dir=output_filepath, website=immobiliare, n_pages=n_pages)
+    dataframes = scraper.get_data()
+
+    # Save data
+    filenames = ['caratteristiche', 'costi', 'efficienza_energetica']
+    for df, name in zip(dataframes, filenames):
+        scraper.save_data(df, name)
 
 
 if __name__ == '__main__':

@@ -1,128 +1,173 @@
+from pathlib import Path
 from bs4 import BeautifulSoup
 from requests import get
 import pandas as pd
-import itertools
-import matplotlib.pyplot as plt
-import seaborn as sns
-import regex as re
-import pickle
-sns.set()
+import re
 
 # Initial URL and number of pages to scrape
 path_raw = '/home/matteo@COPPET/Documents/data_science/projects/housing_prices_firenze/data/raw/'
-immobiliare = 'https://www.immobiliare.it/vendita-case/firenze/'
-n_pages = 365
-average_price = 3.457 # Average price per square meter in Sept 2020
-
-# Get full list of URLs to scrape
-with open(path_raw+'urls.txt', 'w') as f:
-    urls = []
-    for i in range(1, n_pages + 1):
-        if i == 1:
-            url = immobiliare
-        else:
-            url = immobiliare + '?pag=' + str(i)
-
-        response = get(url)
-        html_soup = BeautifulSoup(response.text, 'html.parser')
-        a = html_soup.find_all(href=re.compile("/annunci/"))
-
-        for item in a:
-            href = item.get('href')
-            urls.append(href)
-            f.write("%s\n" % href)
-        print('Loop ' + str(i) + ' completed.')
-
-with open(path_raw+'urls.txt', 'r') as f:
-    urls = [line.strip() for line in f]
+path_interim = '/home/matteo@COPPET/Documents/data_science/projects/housing_prices_firenze/data/interim/'
+average_price = 3.457  # Average price per square meter in Sept 2020
 
 
-# Get all possible entry titles
-all_titles = [[], [], []]
-c = 0
-for url in urls:
-    response = get(url)
-    html_soup = BeautifulSoup(response.text, 'lxml')
-    tables = html_soup.find_all(class_="im-features__list")
+class WebScraper:
+    def __init__(self, raw_dir, interim_dir, website, n_pages):
+        self.raw_dir = raw_dir
+        self.interim_dir = interim_dir
+        self.website = website
+        self.n_pages = n_pages
 
-    for i, table in enumerate(tables[:3]):
-        titles = table.find_all(class_='im-features__title')
-        for title in titles:
-            if title.text not in all_titles[i]:
-                all_titles[i].append(title.text)
-    if c % 500 == 0:
-        print('Loop ' + str(c) + ' completed.')
-    c += 1
+    def _get_urls(self):
+        """Get full list of URLs to scrape."""
+        urls = []
 
-# Write titles to file
-with open(path_raw+'titles.txt', 'w') as f:
-    for tables in all_titles:
-        for title in tables:
-            f.write("%s\n" % title)
-
-# Open file into list of lists
-with open(path_raw+'titles.txt', 'r') as f:
-    all_titles = [[], [], []]
-    for i in range(3):
-        for j, line in enumerate(f):
-            if j <= 14:
-                all_titles[0].append(line.strip())
-            elif j <= 27:
-                all_titles[1].append(line.strip())
+        print('Getting URLs from website...')
+        for i in range(1, self.n_pages + 1):
+            if i == 1:
+                url = self.website
             else:
-                all_titles[2].append(line.strip())
+                url = self.website + '?pag=' + str(i)
 
-caratteristiche = {key: list() for key in all_titles[0]}
-caratteristiche['indirizzo'] = []
-caratteristiche['zona'] = []
+            response = get(url)
+            html_soup = BeautifulSoup(response.text, 'html.parser')
 
-costi = {key: list() for key in all_titles[1]}
-efficienza_energetica = {key: list() for key in all_titles[2]}
+            a = html_soup.find_all(href=re.compile("/annunci/"))
+            for item in a:
+                href = item.get('href')
+                urls.append(href)
 
-dicts = [caratteristiche, costi, efficienza_energetica]
+            print('Loop ' + str(i) + ' completed.')
+        return urls
 
-loop = 0
-for url in urls:
-    try:
-        response = get(url)
-        html_soup = BeautifulSoup(response.text, 'lxml')
+    def save_urls(self, urls):
+        """Save URLs to .txt file."""
+        with open(self.raw_dir+'urls.txt', 'w') as f:
+            for url in urls:
+                f.write("%s\n" % url)
 
-        # Get area
-        area = html_soup.find('div', class_="im-relatedLink__container").find_all('a')
-        caratteristiche['zona'].append(area[-1]['href'][63:])
+    def load_urls(self):
+        """Load URLs from .txt file."""
+        with open(self.raw_dir+'urls.txt', 'r') as f:
+            urls = [line.strip() for line in f]
+        return urls
 
-        # Get address
-        addresses = html_soup.find_all(class_="im-location")
-        addresses_text = list(set([address.text for address in addresses]))
-        caratteristiche['indirizzo'].append(addresses_text)
+    @staticmethod
+    def _get_titles(urls):
+        """Get all possible entry titles."""
+        table_list = [[], [], []]
+        c = 0
+        print('Getting all possible titles...')
+        for url in urls:
+            response = get(url)
+            html_soup = BeautifulSoup(response.text, 'lxml')
 
-        # Get tables
-        tables = html_soup.find_all(class_="im-features__list")
+            tables = html_soup.find_all(class_="im-features__list")
+            for i, table in enumerate(tables[:3]):
+                titles = table.find_all(class_='im-features__title')
+                for title in titles:
+                    if title.text not in table_list[i]:
+                        table_list[i].append(title.text)
+            if c % 500 == 0:
+                print('Loop ' + str(c) + ' completed.')
+            c += 1
+        return table_list
 
-        for i, table in enumerate(tables[:3]):
+    def save_titles(self, table_list):
+        """Write titles to .txt file."""
+        with open(self.raw_dir+'titles.txt', 'w') as f:
+            for table in table_list:
+                for title in table:
+                    f.write("%s\n" % title)
 
-            # Get entries (left) and values (right) for first 3 tables
-            titles = table.find_all(class_='im-features__title')
-            values = table.find_all(class_='im-features__value')
-            titles_text = [title.text for title in titles]
-            c = 0
-            for key in dicts[i].keys():
-                if key in titles_text:
-                    dicts[i][key].append(values[c].text.strip())
-                    c += 1
-                elif key not in ['indirizzo', 'zona']:
-                    dicts[i][key].append('n/a')
-        print('Loop ' + str(loop) + ' completed.')
-        loop += 1
-    except:
-        print('Loop ' + str(loop) + ' failed.')
-        loop += 1
+    def load_titles(self):
+        """Load titles from .txt file."""
+        with open(self.raw_dir+'titles.txt', 'r') as f:
+            all_titles = [[], [], []]
+            for i in range(3):
+                for j, line in enumerate(f):
+                    if j <= 14:
+                        all_titles[0].append(line.strip())
+                    elif j <= 27:
+                        all_titles[1].append(line.strip())
+                    else:
+                        all_titles[2].append(line.strip())
+        return all_titles
 
+    @staticmethod
+    def _get_dicts(table_list):
+        """Create dictionaries from all possible titles."""
+        caratteristiche = {key: list() for key in table_list[0]}
+        caratteristiche['indirizzo'] = []
+        caratteristiche['zona'] = []
 
-caratteristiche = pd.DataFrame.from_dict(dicts[0], orient='index').transpose()
-costi = pd.DataFrame.from_dict(dicts[1], orient='index').transpose()
-efficienza_energetica = pd.DataFrame.from_dict(dicts[2], orient='index').transpose()
+        costi = {key: list() for key in table_list[1]}
 
-caratteristiche.to_excel(path_raw+'caratteristiche.xlsx', index=False)
-costi.to_excel(path_raw+'costi.xlsx', index=False)
-efficienza_energetica.to_excel(path_raw+'efficienza_energetica.xlsx', index=False)
+        efficienza_energetica = {key: list() for key in table_list[2]}
+
+        dicts = [caratteristiche, costi, efficienza_energetica]
+        return dicts
+
+    def get_data(self):
+        """Scrape the data and store it in dictionaries."""
+        urls = self._get_urls()
+        table_list = self._get_titles(urls)
+        dicts = self._get_dicts(table_list)
+
+        print('Getting data from URLs...')
+        loop = 0
+        for url in urls:
+            try:
+                response = get(url)
+                html_soup = BeautifulSoup(response.text, 'lxml')
+
+                # Get area
+                area = html_soup.find('div', class_="im-relatedLink__container").find_all('a')
+                dicts[0]['zona'].append(area[-1]['href'][63:])
+
+                # Get address
+                addresses = html_soup.find_all(class_="im-location")
+                addresses_text = list(set([address.text for address in addresses]))
+                dicts[0]['indirizzo'].append(addresses_text)
+
+                # Get tables
+                tables = html_soup.find_all(class_="im-features__list")
+
+                # Loop through the tables
+                for i, table in enumerate(tables[:3]):
+                    # Get entries (left) and values (right) for first 3 tables
+                    titles = table.find_all(class_='im-features__title')
+                    values = table.find_all(class_='im-features__value')
+
+                    titles_text = [title.text for title in titles]
+                    values_text = [value.text.strip() for value in values]
+                    entries = dict(zip(titles_text, values_text))
+
+                    c = 0
+                    for key in dicts[i].keys():
+                        if key in titles_text:
+                            dicts[i][key].append(entries[key])
+                            c += 1
+                        elif key not in ['indirizzo', 'zona']:
+                            dicts[i][key].append('n/a')
+
+                print('Loop ' + str(loop) + ' completed.')
+                loop += 1
+            except AttributeError:
+                print('Loop ' + str(loop) + ' failed.')
+                loop += 1
+
+        # Convert dictionaries to dataframes and save them
+        dfs = []
+        for dict_ in dicts:
+            dfs.append(self._to_dataframe(dict_))
+        return dfs
+
+    @staticmethod
+    def _to_dataframe(dictionary):
+        """Transform dictionaries to pandas DataFrames."""
+        df = pd.DataFrame.from_dict(dictionary, orient='index').transpose()
+        return df
+
+    def save_data(self, df, name):
+        """Save DataFrames as csv files."""
+        df.to_csv(Path(self.interim_dir+'/{}.csv'.format(name)), index=False)
