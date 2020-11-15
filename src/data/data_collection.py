@@ -1,13 +1,8 @@
 from pathlib import Path
-from bs4 import BeautifulSoup
 from requests import get
-import pandas as pd
+from bs4 import BeautifulSoup
 import re
-
-# Initial URL and number of pages to scrape
-path_raw = '/home/matteo@COPPET/Documents/data_science/projects/housing_prices_firenze/data/raw/'
-path_interim = '/home/matteo@COPPET/Documents/data_science/projects/housing_prices_firenze/data/interim/'
-average_price = 3.457  # Average price per square meter in Sept 2020
+import pandas as pd
 
 
 class WebScraper:
@@ -168,6 +163,6 @@ class WebScraper:
         df = pd.DataFrame.from_dict(dictionary, orient='index').transpose()
         return df
 
-    def save_data(self, df, name):
-        """Save DataFrames as csv files."""
-        df.to_csv(Path(self.interim_dir+'/{}.csv'.format(name)), index=False)
+    def save_data(self, data, name):
+        """Save DataFrame to csv files."""
+        data.to_csv(Path(self.interim_dir+'/{}.csv'.format(name)), index=False)

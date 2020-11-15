@@ -14,11 +14,12 @@ def main(input_filepath, output_filepath):
     logger = logging.getLogger(__name__)
     logger.info('Collecting and saving data.')
 
-    immobiliare = 'https://www.immobiliare.it/vendita-case/firenze/'
+    # Define scraping variables
+    website = 'https://www.immobiliare.it/vendita-case/firenze/'
     n_pages = 366
 
     # Collect data
-    scraper = WebScraper(raw_dir=input_filepath, interim_dir=output_filepath, website=immobiliare, n_pages=n_pages)
+    scraper = WebScraper(raw_dir=input_filepath, interim_dir=output_filepath, website=website, n_pages=n_pages)
     dataframes = scraper.get_data()
 
     # Save data
