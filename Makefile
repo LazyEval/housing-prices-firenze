@@ -21,7 +21,7 @@ endif
 #################################################################################
 
 ## Clean, data
-all: clean data
+all: clean data features
 
 ## Install Python Dependencies
 requirements: test_environment
@@ -31,6 +31,10 @@ requirements: test_environment
 ## Make Dataset
 data: requirements
 	$(PYTHON_INTERPRETER) src/data/make_dataset.py data/test data/test
+
+## Build Features
+features:
+	$(PYTHON_INTERPRETER) src/features/build_features.py data/interim data/processed
 
 ## Delete all compiled Python files
 clean:
