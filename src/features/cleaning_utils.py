@@ -351,7 +351,7 @@ def data_split(test_size=0.2):
 def save_data(data, path, name):
 	"""Save model as pickle file."""
 	with open(path + name, 'wb') as f:
-		pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
+		pickle.dump(data, f, protocol=4)
 
 
 def create_pipeline(list_functions):

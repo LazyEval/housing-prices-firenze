@@ -3,6 +3,7 @@ import click
 import logging
 from pathlib import Path
 from dotenv import find_dotenv, load_dotenv
+from sklearn.model_selection import train_test_split
 from src.features import load_data, save_data, cleaning_pipeline, preprocessing_pipeline
 
 
@@ -17,14 +18,19 @@ def main(input_filepath, output_filepath):
 	# Load data
 	df = load_data(input_filepath)
 
-	# Clean and split data
-	train, test = cleaning_pipeline(df)
+	# Clean and save data for EDA
+	df_clean = cleaning_pipeline(df)
+	#save_data(df_clean, output_filepath, '/data_clean.pkl')
+	df_clean.to_csv(output_filepath + '/data_clean.csv', index=False)
 
-	# Pre-process data
+	# Split data
+	train, test = train_test_split(df_clean, test_size=0.2, random_state=0)
+
+	# Pre-process datasets
 	train_processed = preprocessing_pipeline.fit_transform(train)
 	test_processed = preprocessing_pipeline.transform(test)
 
-	# Save data
+	# Save datasets for modeling
 	save_data(train_processed, output_filepath, '/train')
 	save_data(test_processed, output_filepath, '/test')
 

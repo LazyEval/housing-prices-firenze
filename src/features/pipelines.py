@@ -72,7 +72,6 @@ cleaning_pipeline = create_pipeline([
 	rename_col('Piani', 'Piano'),
 	rename_col('Anno di costruzione', 'Anno_costruzione'),
 	rename_col('Tipo proprietà', 'Tipo_proprietà'),
-	data_split()
 ])
 
 cat_features = ['Tipologia', 'Zona', 'Stato', 'Tipo_proprietà', 'Riscaldamento_A_C', 'Tipo_riscaldamento',
