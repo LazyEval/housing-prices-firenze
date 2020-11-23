@@ -36,6 +36,10 @@ data: requirements
 features:
 	$(PYTHON_INTERPRETER) src/features/build_features.py data/interim data/processed
 
+## Create plots
+visualize:
+	$(PYTHON_INTERPRETER) src/visualization/visualize.py data/processed reports/figures
+
 ## Delete all compiled Python files
 clean:
 	find . -type f -name "*.py[co]" -delete
