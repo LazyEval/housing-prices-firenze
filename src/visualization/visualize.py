@@ -5,7 +5,6 @@ from pathlib import Path
 from dotenv import find_dotenv, load_dotenv
 import numpy as np
 import pandas as pd
-from src.features import load_data
 from src.visualization import (histogram, boxplot, scatterplot, hist_per_district, scatter_per_district,
 							   ordered_barchart)
 

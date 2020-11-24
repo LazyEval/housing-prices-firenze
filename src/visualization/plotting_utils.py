@@ -3,6 +3,7 @@ import seaborn as sns
 
 
 def histogram(data, columns, transformation=None):
+	"""Create histograms for a list of continuous variables."""
 	fig = plt.figure(figsize=(16, 8))
 	sns.set_style('whitegrid')
 	for i, col in enumerate(columns, 1):
@@ -17,6 +18,7 @@ def histogram(data, columns, transformation=None):
 
 
 def boxplot(data, columns, transformation=None):
+	"""Create boxplots for a list of continuous variables."""
 	fig = plt.figure(figsize=(16, 8))
 	for i, col in enumerate(columns, 1):
 		plt.subplot(1, 2, i)
@@ -31,6 +33,7 @@ def boxplot(data, columns, transformation=None):
 
 
 def scatterplot(data, x_col, y_col, hue_data, transformation=None):
+	"""Create scatter plot for two continuous variables."""
 	fig = plt.figure(figsize=(16, 16))
 	sns.set_style('whitegrid')
 	if transformation:
@@ -44,6 +47,7 @@ def scatterplot(data, x_col, y_col, hue_data, transformation=None):
 
 
 def hist_per_district(data, col, row, feature, transformation=None):
+	"""Create a facetgrid with histograms."""
 	g = sns.FacetGrid(data, col=col, row=row, col_wrap=3, sharex=False, sharey=False, height=5)
 
 	if transformation:
@@ -54,6 +58,7 @@ def hist_per_district(data, col, row, feature, transformation=None):
 
 
 def scatter_per_district(data, col, row, transformation=None):
+	"""Create a facetgrid with scatter plots."""
 	g = sns.FacetGrid(data, col=col, row=row, col_wrap=3, sharex=False, sharey=False, height=5)
 	if transformation:
 		g.map_dataframe(sns.scatterplot, x=transformation(data['Superficie_m2']), y=transformation(data['Prezzo_EUR']))
@@ -63,6 +68,7 @@ def scatter_per_district(data, col, row, transformation=None):
 
 
 def ordered_barchart(data):
+	"""Create a barchart with ordered values on the y axis."""
 	gb_ordered = data.groupby('Zona').agg({'Prezzo_per_m2': 'mean'}).sort_values('Prezzo_per_m2', ascending=False)
 
 	fig = plt.figure(figsize=(12, 10))
