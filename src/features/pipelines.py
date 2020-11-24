@@ -76,7 +76,7 @@ cleaning_pipeline = create_pipeline([
 
 cat_features = ['Tipologia', 'Zona', 'Stato', 'Tipo_proprietà', 'Riscaldamento_A_C', 'Tipo_riscaldamento',
 				'Alimentazione_riscaldamento', 'Classe_energetica', 'Piano']
-num_features = ['Prezzo_EUR', 'Superficie_m2', 'Num_bagni', 'Num_tot_locali', 'Anno_costruzione']
+num_features = ['Superficie_m2', 'Num_bagni', 'Num_tot_locali', 'Anno_costruzione']
 
 cat_transformer = Pipeline([
 	('encoding', CustomEncoder()),
