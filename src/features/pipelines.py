@@ -1,13 +1,13 @@
 from src.features import (read_data, drop_columns, drop_nans, rename_cols, rename_col, drop_duplicates, drop_rows,
-						  filter_rows, clean_address, clean_district, impute_district, clean_price, clean_sqm,
-						  clean_outliers, create_price_sqm, create_heating, create_heating_type, create_heating_source,
+						  filter_rows, clean_address, clean_district, impute_district, clean_price, clean_sqm, clean_state,
+						  remove_outliers, create_price_sqm, create_heating, create_heating_type, create_heating_source,
 						  create_energy_class, create_listing_date, create_elevator, create_disabled_access,
 						  create_floor, create_garage_parking, create_external_parking, create_num_bathrooms,
-						  create_num_rooms, string_parser, create_features_list, create_other_features, data_split,
-						  create_pipeline, CustomEncoder, ColumnSelector
+						  create_num_rooms, string_parser, create_features_list, create_other_features, create_pipeline,
+						  CustomEncoder
 						  )
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
 from sklearn.compose import ColumnTransformer
@@ -51,9 +51,8 @@ cleaning_pipeline = create_pipeline([
 	filter_rows('Prezzo', 'Prezzo su richiesta'),
 	clean_price,
 	clean_sqm,
-	clean_outliers('Superficie_m2', 240018.0, 240.0),
-	clean_outliers('Superficie_m2', 11350.0, 1135.0),
-	clean_outliers('Superficie_m2', 6437.0, 64.0),
+	clean_state,
+	remove_outliers(['Prezzo_EUR', 'Superficie_m2']),
 	create_price_sqm,
 	create_heating,
 	create_heating_type,
@@ -78,9 +77,13 @@ cat_features = ['Tipologia', 'Zona', 'Stato', 'Tipo_proprietà', 'Riscaldamento_
 				'Alimentazione_riscaldamento', 'Classe_energetica', 'Piano']
 num_features = ['Superficie_m2', 'Num_bagni', 'Num_tot_locali', 'Anno_costruzione']
 
+# cat_features = ['Tipologia', 'Zona', 'Tipo_proprietà', 'Tipo_riscaldamento', 'Classe_energetica']
+# num_features = ['Superficie_m2', 'Num_tot_locali']
+
 cat_transformer = Pipeline([
-	('encoding', CustomEncoder()),
-	('imputing', IterativeImputer(initial_strategy='most_frequent', max_iter=10, random_state=0))
+	('label_encoding', CustomEncoder()),
+	('imputing', IterativeImputer(initial_strategy='most_frequent', max_iter=10, random_state=0)),
+#	('oh_encoding', OneHotEncoder(handle_unknown='ignore'))
 ])
 
 num_transformer = Pipeline([

@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import pickle
+from scipy import stats
 from sklearn.model_selection import train_test_split
 
 
@@ -150,6 +151,12 @@ def clean_sqm(data):
 	return data
 
 
+def clean_state(data):
+	"""Clean the state feature."""
+	data['Stato'] = data['Stato'].str.replace(' ', '_')
+	return data
+
+
 def clean_outliers(col, current_value, new_value):
 	"""Replace outlier values by new values."""
 
@@ -158,6 +165,16 @@ def clean_outliers(col, current_value, new_value):
 		return data
 
 	return cleaner
+
+
+def remove_outliers(cols):
+	"""Remove all rows from a DataFrame that contain outliers in selected columns by using a z statistic."""
+
+	def remover(data):
+		data = data.loc[(np.abs(stats.zscore(data[cols])) < 3).all(axis=1)]
+		return data
+
+	return remover
 
 
 def create_price_sqm(data):

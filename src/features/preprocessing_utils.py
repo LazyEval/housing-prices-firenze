@@ -4,6 +4,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 
 
 class CustomEncoder(BaseEstimator, TransformerMixin):
+    """Custom LabelEncoder that handles unknown values."""
     def __init__(self):
         self.encoders = dict()
 
@@ -33,6 +34,7 @@ class CustomEncoder(BaseEstimator, TransformerMixin):
 
 
 class ColumnSelector:
+    """Column selector transformer."""
     def __init__(self, columns=None):
         self.columns = columns
 
