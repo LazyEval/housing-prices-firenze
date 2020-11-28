@@ -23,9 +23,9 @@ def boxplot(data, columns, transformation=None):
 	for i, col in enumerate(columns, 1):
 		plt.subplot(1, 2, i)
 		if transformation:
-			plt.boxplot(transformation(data[col]), whis=5)
+			plt.boxplot(transformation(data[col]), whis=None)
 		else:
-			plt.boxplot(data[col], whis=5)
+			plt.boxplot(data[col], whis=None)
 		plt.ylabel("log({})".format(col), size=12)
 		plt.title(col)
 	plt.tight_layout()
