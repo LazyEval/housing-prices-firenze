@@ -11,10 +11,8 @@ Housing price estimator: Project overview
 
 Code and resources
 --
-**Python version**: 3.8
-
-**Packages**: python-dotenv, requests, setuptools, beautifulsoup4, lxml, numpy, pandas, scikit-learn, matplotlib, seaborn, scipy
-
+**Python version**: 3.8  
+**Packages**: python-dotenv, requests, setuptools, beautifulsoup4, lxml, numpy, pandas, scikit-learn, matplotlib, seaborn, scipy  
 **Requirements**: `pip install -r requirements.txt`
 
 Web scraping
@@ -35,7 +33,6 @@ Scraped 9000 house listings on immobiliari.it and got the following data:
 Data cleaning
 --
 After scraping the data from the web, I created a data cleaning pipeline where I did the following:
-
 - Dropped uninformative columns such as the listings ID or the type of contract
 - Dropped rows corresponding to homes that are not located in Firenze
 - Manually imputed missing districts
