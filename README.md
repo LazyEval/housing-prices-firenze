@@ -1,21 +1,57 @@
-housing_prices_firenze
-==============================
-This project aims at predicting the housing prices in Firenze, Italy based on data from October 2020. This analysis does not take *time* into account, i.e. there is no forecasting, as it is solely based on data obtained at a single point in time. The main idea is therefore to simply give a rough idea of the value of a house/apartment based on a series of features that still need to be fully determined.
+Housing price estimator: Project overview
+--
+- Created a tool to estimate the price of a home in Firenze, Italy based on data from October 2020.
+- Scraped over 9000 house listings from Immobiliari using Python.
+- Built a data cleaning pipeline and extracted features such as district, total number of rooms, heating, and energy class.
+- Performed EDA to better understand the data and the influence of each of the features on price.
+- Built a pre-processing pipeline including various regression models to select the best model.
+- TODO: deploy the model using streamlit.
+- TODO: implement testing.
+- TODO: containerization with docker.
 
-The main steps of this project include:
+Code and resources
+--
+**Python version**: 3.8
 
-    1. Data collection
-    2. Data cleaning
-    3. Exploratory data analysis
-    4. Pre-processing
-    5. Modeling
-    6. Designing a simple frontend
-    7. Testing
+**Packages**: python-dotenv, requests, setuptools, beautifulsoup4, lxml, numpy, pandas, scikit-learn, matplotlib, seaborn, scipy
 
-The aforementioned steps are generally first carried out using *Jupyter notebooks* but are then progressively refactored as source code using software engineering best practices. In this sense, the project organization, **based on drivendata's data science cookiecutter template**, is as follows:
+**Requirements**: `pip install -r requirements.txt`
 
-Project Organization
-------------
+Web scraping
+--
+Scraped 9000 house listings on immobiliari.it and got the following data:
+- Price
+- Square meters
+- District
+- Type of property
+- Category
+- State of the house
+- Heating
+- Energy class
+- Number of rooms
+- Floors
+- Other features
+
+Data cleaning
+--
+After scraping the data from the web, I created a data cleaning pipeline where I did the following:
+
+- Dropped uninformative columns such as the listings ID or the type of contract
+- Dropped rows corresponding to homes that are not located in Firenze
+- Manually imputed missing districts
+- Drop rows with missing values in price and square meters
+- Extracted price, square meters, state of the house
+- Feature engineered price/m<sup>2</sup>, heating, energy class, elevator, disabled access, floor, parking, number of bathrooms, number of rooms, other features (created a new column for each)
+
+Exploratory data analysis
+--
+I looked at the distributions, boxplots and scatter plots of the data to get a better understanding of what I was working with. Below are some highlights from this analysis:
+
+<img src="https://github.com/LazyEval/housing-prices-firenze/blob/master/reports/figures/barchart.png" width="600">
+
+Project organization
+--
+The project organization, **based on drivendata's data science cookiecutter template**, is as follows:
 
     ├── LICENSE
     ├── Makefile           <- Makefile with commands like `make data` or `make train`
