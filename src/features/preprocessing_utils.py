@@ -33,7 +33,7 @@ class CustomEncoder(BaseEstimator, TransformerMixin):
         return self.transform(X, y)
 
 
-class ColumnSelector:
+class ColumnSelector(BaseEstimator, TransformerMixin):
     """Column selector transformer."""
     def __init__(self, columns=None):
         self.columns = columns
