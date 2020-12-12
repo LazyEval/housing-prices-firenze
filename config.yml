@@ -1,0 +1,14 @@
+cleaning:
+  filenames: ['/caratteristiche.xlsx', '/costi.xlsx', '/efficienza_energetica.xlsx']
+  drop_cols_1: ['unità', 'Data di inizio lavori e di consegna prevista', 'Dati catastali']
+  keep_cols: ['prezzo', 'informazioni catastali', 'spese condominio']
+  drop_cols_2: ['numero immobili', 'offerta minima', 'rialzo minimo', 'Spesa prenota debito', 'Contributo non dovuto',
+                'Tipo vendita', 'data vendita']
+  subset: ['Zona', 'Superficie']
+  drop_cols: ['Indirizzo', 'Prezzo', 'Superficie', 'Immobile garantito', 'Indice prest. energetica rinnovabile',
+              'Prestazione energetica del fabbricato', 'Certificazione energetica', 'Disponibilità', 'Contratto',
+              'Informazioni catastali', 'Spese condominio', 'Riscaldamento', 'Climatizzazione', 'Efficienza energetica',
+              'Riferimento e data annuncio', 'Piano', 'Totale piani edificio', 'Posti auto', 'Locali', 'Num_altri',
+              'Num_camere_letto', 'Num_locali', 'Altre caratteristiche', 'Altre_caratteristiche', 'Data_annuncio']
+
+preprocessing:
