@@ -4,23 +4,26 @@ import logging
 from pathlib import Path
 from dotenv import find_dotenv, load_dotenv
 from sklearn.model_selection import train_test_split
-from src.features import load_data, save_data, cleaning_pipeline, preprocessing_pipeline
+from src.features import parse_config, load_data, save_data, clean_data
 
 
 @click.command()
 @click.argument('input_filepath', type=click.Path(exists=True))
 @click.argument('output_filepath', type=click.Path())
-def main(input_filepath, output_filepath):
+@click.argument('config_file', type=str, default='config.yml')
+def main(input_filepath, output_filepath, config_file):
 	""" Runs data loading and cleaning and pre-processing scripts and saves data in ../processed."""
 	logger = logging.getLogger(__name__)
 	logger.info('Loading collected data, cleaning it, pre-processing it and saving it.')
 
+	# Parse config file
+	config = parse_config(config_file)
+
 	# Load data
-	df = load_data(input_filepath)
+	df = load_data(input_filepath, config)
 
 	# Clean and save data for EDA
-	df_clean = cleaning_pipeline(df)
-	#save_data(df_clean, output_filepath, '/data_clean.pkl')
+	df_clean = clean_data(config)(df)
 	df_clean.to_csv(output_filepath + '/data_clean.csv', index=False)
 
 	# Split data

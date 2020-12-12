@@ -4,7 +4,8 @@ from .cleaning_utils import (read_data, drop_columns, select_columns, join_table
 							 create_heating_type, create_heating_source, create_energy_class, create_listing_date,
 							 create_elevator, create_disabled_access, create_floor, create_garage_parking,
 							 create_external_parking, create_num_bathrooms, create_num_rooms, string_parser,
-							 create_features_list, create_other_features, data_split, save_data, create_pipeline
+							 create_features_list, create_other_features, data_split, save_data, create_pipeline,
+							 parse_config
 							 )
 from .preprocessing_utils import CustomEncoder, ColumnSelector
-from .pipelines import load_data, cleaning_pipeline, preprocessing_pipeline
+from .pipelines import load_data, clean_data

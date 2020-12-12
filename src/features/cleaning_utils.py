@@ -1,8 +1,16 @@
 import numpy as np
 import pandas as pd
 import pickle
+import yaml
 from scipy import stats
 from sklearn.model_selection import train_test_split
+
+
+def parse_config(config_file):
+	"""Parse the config file containing all the workflow parameters."""
+	with open(config_file, "rb") as f:
+		config = yaml.safe_load(f)
+	return config
 
 
 def read_data(filename):
@@ -168,10 +176,11 @@ def clean_outliers(col, current_value, new_value):
 
 
 def remove_outliers(cols):
-	"""Remove all rows from a DataFrame that contain outliers in selected columns by using a z statistic."""
+	"""Remove all rows from a DataFrame that contain outliers in log-transformed selected columns by using a z
+	statistic."""
 
 	def remover(data):
-		data = data.loc[(np.abs(stats.zscore(data[cols])) < 3).all(axis=1)]
+		data = data.loc[(np.abs(stats.zscore(np.log(data[cols]))) < 3).all(axis=1)]
 		return data
 
 	return remover
