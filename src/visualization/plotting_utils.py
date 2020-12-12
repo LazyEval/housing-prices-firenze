@@ -24,9 +24,10 @@ def boxplot(data, columns, transformation=None):
 		plt.subplot(1, 2, i)
 		if transformation:
 			plt.boxplot(transformation(data[col]), whis=None)
+			plt.ylabel("log({})".format(col), size=12)
 		else:
 			plt.boxplot(data[col], whis=None)
-		plt.ylabel("log({})".format(col), size=12)
+			plt.ylabel("{}".format(col), size=12)
 		plt.title(col)
 	plt.tight_layout()
 	return fig
@@ -38,11 +39,14 @@ def scatterplot(data, x_col, y_col, hue_data, transformation=None):
 	sns.set_style('whitegrid')
 	if transformation:
 		sns.scatterplot(x=transformation(data[x_col]), y=transformation(data[y_col]), hue=hue_data)
+		plt.xlabel('log({})'.format(x_col), size=14)
+		plt.ylabel('log({})'.format(y_col), size=14)
+		plt.title('Log price vs. log square meters', size=14, weight='bold')
 	else:
 		sns.scatterplot(x=data[x_col], y=data[y_col], hue=hue_data)
-	plt.xlabel('log({})'.format(x_col), size=14)
-	plt.ylabel('log({})'.format(y_col), size=14)
-	plt.title('Log price vs. log square meters', size=14, weight='bold')
+		plt.xlabel('{}'.format(x_col), size=14)
+		plt.ylabel('{}'.format(y_col), size=14)
+		plt.title('Price vs. square meters', size=14, weight='bold')
 	return fig
 
 
@@ -62,8 +66,11 @@ def scatter_per_district(data, col, row, transformation=None):
 	g = sns.FacetGrid(data, col=col, row=row, col_wrap=3, sharex=False, sharey=False, height=5)
 	if transformation:
 		g.map_dataframe(sns.scatterplot, x=transformation(data['Superficie_m2']), y=transformation(data['Prezzo_EUR']))
+		g.set_axis_labels("log(price)", "log(square meters)")
 	else:
 		g.map_dataframe(sns.scatterplot, x='Superficie_m2', y='Prezzo_EUR')
+		g.set_axis_labels("Square meters", "Price")
+	g.fig.tight_layout()
 	return g
 
 
