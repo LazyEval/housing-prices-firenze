@@ -7,11 +7,6 @@ from src.features import (read_data, drop_columns, drop_nans, rename_cols, renam
 						  create_num_rooms, string_parser, create_features_list, create_other_features, create_pipeline,
 						  CustomEncoder
 						  )
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
-from sklearn.experimental import enable_iterative_imputer
-from sklearn.impute import IterativeImputer
-from sklearn.compose import ColumnTransformer
 
 
 def load_data(path, config):
@@ -67,25 +62,3 @@ def clean_data(config):
 		rename_col('Tipo proprietà', 'Tipo_proprietà'),
 	])
 	return cleaning_pipeline
-
-
-# cat_features = None
-# num_features = None
-#
-# cat_transformer = Pipeline([
-# 	('label_encoding', CustomEncoder()),
-# 	('imputing', IterativeImputer(initial_strategy='most_frequent', max_iter=10, random_state=0)),
-# 	('oh_encoding', OneHotEncoder(handle_unknown='ignore'))
-# ])
-#
-# num_transformer = Pipeline([
-# 	('scaling', StandardScaler()),
-# 	('imputing', IterativeImputer(initial_strategy='mean', max_iter=10, random_state=0))
-# ])
-#
-# preprocessing_pipeline = ColumnTransformer([
-# 	('categoricals', cat_transformer, cat_features),
-# 	('numericals', num_transformer, num_features)
-# ],
-# 	remainder='passthrough'
-# )
