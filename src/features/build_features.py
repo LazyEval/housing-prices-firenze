@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 from dotenv import find_dotenv, load_dotenv
 from sklearn.model_selection import train_test_split
-from src.features import parse_config, load_data, save_data, clean_data
+from src.features import parse_config, load_raw_data, clean_data
 
 
 @click.command()
@@ -14,28 +14,33 @@ from src.features import parse_config, load_data, save_data, clean_data
 def main(input_filepath, output_filepath, config_file):
 	""" Runs data loading and cleaning and pre-processing scripts and saves data in ../processed."""
 	logger = logging.getLogger(__name__)
-	logger.info('Loading collected data, cleaning it, pre-processing it and saving it.')
+	logger.info('Loading collected data, cleaning it, splitting it and saving it for pre-processing and modeling.')
 
 	# Parse config file
 	config = parse_config(config_file)
 
 	# Load data
-	df = load_data(input_filepath, config)
+	df = load_raw_data(input_filepath, config)
 
-	# Clean and save data for EDA
+	# Clean and save data for EDA and pre-processing
 	df_clean = clean_data(config)(df)
 	df_clean.to_csv(output_filepath + '/data_clean.csv', index=False)
 
+	# Select features for pre-processing and modeling
+	features = config['features']['features']
+	target = config['features']['target']
+
+	X = df_clean[features]
+	y = df_clean[target]
+
 	# Split data
-	train, test = train_test_split(df_clean, test_size=0.2, random_state=0)
+	X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
 
-	# Pre-process datasets
-	train_processed = preprocessing_pipeline.fit_transform(train)
-	test_processed = preprocessing_pipeline.transform(test)
-
-	# Save datasets for modeling
-	save_data(train_processed, output_filepath, '/train')
-	save_data(test_processed, output_filepath, '/test')
+	# Save X and y sets for modeling
+	datasets = [X_train, X_test, y_train, y_test]
+	filenames = ['X_train', 'X_test', 'y_train', 'y_test']
+	for dataset, name in zip(datasets, filenames):
+		dataset.to_csv(output_filepath + '/{}.csv'.format(name), index=False)
 
 
 if __name__ == '__main__':
