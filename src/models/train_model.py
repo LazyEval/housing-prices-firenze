@@ -10,7 +10,13 @@ from src.features import parse_config
 from src.models import preprocessing_pipeline, Model
 
 from sklearn.model_selection import KFold
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression, Ridge, ElasticNet
+from sklearn.svm import SVR
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor, ExtraTreesRegressor
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.ensemble import GradientBoostingRegressor, AdaBoostRegressor
+from sklearn.model_selection import GridSearchCV
 
 
 @click.command()
@@ -20,7 +26,7 @@ from sklearn.linear_model import LinearRegression
 def main(input_filepath, output_filepath, config_file):
 	""" Runs data loading and cleaning and pre-processing scripts and saves data in ../processed."""
 	logger = logging.getLogger(__name__)
-	logger.info('Loading collected data, cleaning it, pre-processing it and saving it.')
+	logger.info('Loading training data set, setting up pipeline, tuning and training model.')
 
 	# Parse config file
 	config = parse_config(config_file)
@@ -35,15 +41,19 @@ def main(input_filepath, output_filepath, config_file):
 
 	pipe = Pipeline([
 		('preprocessing', preprocessing_pipeline(cat_features, num_features)),
-		('model', LinearRegression())
+		('model', SVR())
 	])
 
 	# Model
 	kf = KFold(config['modeling']['num_folds'], shuffle=True, random_state=42).get_n_splits(X_train.values)
+	param_grid = {
+		'model__C': 10. ** np.arange(-3, 3),
+		'model__gamma': 10. ** np.arange(-3, 3),
+	}
 
-	model = Model(pipe)
+	model = Model.tune(pipe, X_train, y_train.ravel(), param_grid, cv=kf)
 	print('Mean cross-validation score for {}:'.format(model.name))
-	print(np.round(np.sqrt(-model.cv_score(X_train, y_train, config['modeling']['scoring'], kf)), 2))
+	print(np.round(np.sqrt(-model.cv_score(X_train, y_train.ravel(), config['modeling']['scoring'], kf)), 3))
 
 	# Save model
 	model.save(output_filepath + model.name + '.pkl')
