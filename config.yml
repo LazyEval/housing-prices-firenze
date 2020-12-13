@@ -23,3 +23,7 @@ features:
 modeling:
   num_folds: 5
   scoring: 'neg_mean_squared_error'
+
+predicting:
+ model_name: SVR.pkl
+
