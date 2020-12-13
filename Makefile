@@ -40,6 +40,9 @@ features:
 visualize:
 	$(PYTHON_INTERPRETER) src/visualization/visualize.py data/processed reports/figures
 
+## Train model
+train:
+	$(PYTHON_INTERPRETER) src/models/train_model.py data/processed models/
 ## Delete all compiled Python files
 clean:
 	find . -type f -name "*.py[co]" -delete
