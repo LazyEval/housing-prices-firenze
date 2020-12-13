@@ -84,3 +84,33 @@ def ordered_barchart(data):
 	plt.ylabel("District", size=12)
 	plt.title('Average price/m2 per district', weight='bold')
 	return fig
+
+
+def plot_predictions(train_values, cv_values, true_values):
+	"""Create scatter plots of the training set and cross-validation values vs. the true values."""
+	fig, ax = plt.subplots(figsize=(16, 8))
+
+	ax1 = plt.subplot(1, 2, 1)
+	ax1.scatter(true_values, train_values, edgecolors=(0, 0, 0))
+	ax1.plot([true_values.min(), true_values.max()], [true_values.min(), true_values.max()], 'k--', lw=4)
+	ax1.set_xlabel('Measured')
+	ax1.set_ylabel('Predicted')
+	ax1.set_title('Training set results')
+
+	ax2 = plt.subplot(1, 2, 2)
+	ax2.scatter(true_values, cv_values, edgecolors=(0, 0, 0))
+	ax2.plot([true_values.min(), true_values.max()], [true_values.min(), true_values.max()], 'k--', lw=4)
+	ax2.set_xlabel('Measured')
+	ax2.set_ylabel('Predicted')
+	ax2.set_title('Cross-validation results')
+	return fig
+
+
+def plot_model_comparison(results, names):
+	"""Create boxplots of the model results."""
+	fig = plt.figure(figsize=(10, 10))
+	fig.title('Algorithm Comparison')
+	ax = fig.add_subplot(111)
+	plt.boxplot(results)
+	ax.set_xticklabels(names)
+	return fig
