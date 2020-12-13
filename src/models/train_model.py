@@ -45,7 +45,7 @@ def main(input_filepath, output_filepath, config_file):
 	])
 
 	# Model
-	kf = KFold(config['modeling']['num_folds'], shuffle=True, random_state=42).get_n_splits(X_train.values)
+	kf = KFold(config['modeling']['num_folds'], shuffle=True, random_state=config['seeding']['seed']).get_n_splits(X_train.values)
 	param_grid = {
 		'model__C': 10. ** np.arange(-3, 3),
 		'model__gamma': 10. ** np.arange(-3, 3),

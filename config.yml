@@ -1,3 +1,6 @@
+seeding:
+  seed: 14
+
 cleaning:
   filenames: ['/caratteristiche.xlsx', '/costi.xlsx', '/efficienza_energetica.xlsx']
   drop_cols_1: ['unità', 'Data di inizio lavori e di consegna prevista', 'Dati catastali']
