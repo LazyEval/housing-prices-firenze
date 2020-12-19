@@ -1,1 +1,1 @@
-from .deploy_model import user_input_features
+from .deployment_utils import user_input_features, predict
