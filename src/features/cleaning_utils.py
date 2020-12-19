@@ -194,10 +194,10 @@ def create_price_sqm(data):
 
 def create_heating(data):
 	"""Create centralized/autonomous heating feature."""
-	data['Riscaldamento_A_C'] = data['Riscaldamento'].str.split(',').str[0]
+	data['Riscaldamento_A_C'] = data['Riscaldamento'].str.split(',').str[0].str.lower()
 
 	# Impute by constant value which does not cause data leakage
-	data['Riscaldamento_A_C'] = data['Riscaldamento_A_C'].fillna('Centralizzato')
+	data['Riscaldamento_A_C'] = data['Riscaldamento_A_C'].fillna('centralizzato')
 	return data
 
 
@@ -233,22 +233,21 @@ def create_listing_date(data):
 
 def create_elevator(data):
 	"""Create elevator feature."""
-	mask = data['Piano'].str.match(r'.*ascensore.*')
-
-	data['Ascensore'] = mask.astype('float')
+	mask = data['Piano'].str.match(r'.*ascensore.*').fillna(False)
+	data.loc[mask, 'Ascensore'] = 'sì'
 
 	# Impute by constant value which does not cause data leakage
-	data['Ascensore'] = data['Ascensore'].fillna(0)
+	data['Ascensore'] = data['Ascensore'].fillna('no')
 	return data
 
 
 def create_disabled_access(data):
 	"""Create disabled access feature."""
-	mask = data['Piano'].str.match(r'.*accesso disabili.*')
-	data['Accesso_disabili'] = mask.astype('float')
+	mask = data['Piano'].str.match(r'.*accesso disabili.*').fillna(False)
+	data.loc[mask, 'Accesso_disabili'] = 'sì'
 
 	# Impute by constant value which does not cause data leakage
-	data['Accesso_disabili'] = data['Accesso_disabili'].fillna(0)
+	data['Accesso_disabili'] = data['Accesso_disabili'].fillna('no')
 	return data
 
 
@@ -334,7 +333,7 @@ def string_parser(row):
 
 
 def create_features_list(data):
-	"""Create list of all possible features present in other features column."""
+	"""Create list of all possible features present in "Altre caratteristiche" column."""
 	features_list = []
 	for idx, series in data.iterrows():
 		for feature in series.loc['Altre_caratteristiche']:
@@ -359,7 +358,8 @@ def create_other_features(parser, list_creator):
 		# Create one-hot encoded column for each extracted feature
 		for feature in features_list:
 			mask = data['Altre_caratteristiche'].apply(lambda x: feature in x)
-			data[feature] = mask.astype('float')
+			data.loc[mask, feature] = 'sì'
+			data[feature] = data[feature].fillna('no')
 		return data
 
 	return creator

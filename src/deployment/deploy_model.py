@@ -5,6 +5,7 @@ import pandas as pd
 from src.models import Model
 
 st.title('Housing price estimator for Firenze, Italy.')
+st.subheader('Created by Matteo Latinov')
 
 
 def user_input_features():
@@ -34,7 +35,6 @@ def user_input_features():
 																 'Immobile di lusso',
 																 'Nuda proprietà, classe immobile signorile',
 																 'Nuda proprietà', 'Nuda proprietà, immobile di lusso'))
-
 	year_of_construction = st.sidebar.slider('Year of construction', 1300, 2020)
 	state = st.sidebar.selectbox('State', ('Ottimo_/_Ristrutturato', 'Buono_/_Abitabile', 'Da_ristrutturare',
 										   'Nuovo_/_In_costruzione'))
@@ -43,8 +43,8 @@ def user_input_features():
 	heating_source = st.sidebar.selectbox('Heating source', ('metano', 'gas', 'pompa di calore', 'elettrica',
 															 'fotovoltaico', 'pellet', 'gpl', 'solare'))
 	energy_class = st.sidebar.selectbox('Energy class', ('F', 'G', 'E', 'D', 'C', 'B', 'A', 'A1', 'A2', 'A3', 'A4'))
-	elevator = st.sidebar.selectbox('Elevator', (1, 0))
-	disabled_access = st.sidebar.selectbox('Disabled access', (1, 0))
+	elevator = st.sidebar.selectbox('Elevator', ('sì', 'no'))
+	disabled_access = st.sidebar.selectbox('Disabled access', ('sì', 'no'))
 	floor = st.sidebar.selectbox('Floor', ('terra', '1°', '2°', '3°', '4°', '5°', '6°', '7°', '8°', '9°', '10°',
 										   'ultimo', 'più livelli', 'rialzato', 'interrato', 'ammezzato'))
 	garage_parking = st.sidebar.slider('Garage parking', 0, 10, 0)
