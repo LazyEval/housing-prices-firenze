@@ -87,6 +87,16 @@ def ordered_barchart(data):
 	return fig
 
 
+def correlation_plot(data, corr_cols):
+	"""Create a correlation plot for selected features of a DataFrame."""
+	fig = plt.figure(figsize=(8, 6))
+	cmap = sns.diverging_palette(220, 10, as_cmap=True)
+	sns.heatmap(data[corr_cols].corr(), linewidth=.5, cbar_kws={'shrink': .8}, cmap=cmap)
+	plt.title('Correlation between numerical features', weight='bold')
+	plt.tight_layout()
+	return fig
+
+
 def plot_predictions(train_values, cv_values, true_values):
 	"""Create scatter plots of the training set and cross-validation values vs. the true values."""
 	fig, ax = plt.subplots(figsize=(16, 8))

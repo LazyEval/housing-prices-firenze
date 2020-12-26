@@ -26,6 +26,8 @@ visualizing:
   scatter_2: 'Prezzo_EUR'
   facetgrid_hue: 'Zona'
   facetgrid_var: 'Prezzo_EUR'
+  corr_cols: ['Prezzo_EUR', 'Superficie_m2', 'Num_bagni', 'Num_tot_locali', 'Posti_garage', 'Posti_esterni',
+              'Anno_costruzione']
 
 modeling:
   num_folds: 5

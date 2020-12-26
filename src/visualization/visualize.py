@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 from src.features import parse_config
 from src.visualization import (histogram, boxplot, scatterplot, hist_per_district, scatter_per_district,
-							   ordered_barchart)
+							   ordered_barchart, correlation_plot)
 
 
 @click.command()
@@ -33,7 +33,7 @@ def main(input_filepath, output_filepath, config_file):
 	boxplots = boxplot(df, config['visualizing']['continuous_vars'], transformation=np.log)
 	boxplots.savefig(output_filepath + '/boxplots.png')
 
-	# Scatterplot
+	# Scatter plot
 	scatter = scatterplot(df, config['visualizing']['scatter_1'], config['visualizing']['scatter_2'],
 						  hue_data=df['Zona'], transformation=None)
 	scatter.savefig(output_filepath + '/scatter.png')
@@ -43,13 +43,17 @@ def main(input_filepath, output_filepath, config_file):
 											 config['visualizing']['facetgrid_var'], transformation=np.log)
 	facetgrid_histograms.savefig(output_filepath + '/facetgrid_histograms.png')
 
-	# Facetgrid scatterplots
-	facetgrid_scatters = scatter_per_district(df, config['visualizing']['facetgrid'], None, transformation=None)
+	# Facetgrid scatter plots
+	facetgrid_scatters = scatter_per_district(df, config['visualizing']['facetgrid_hue'], None, transformation=np.log)
 	facetgrid_scatters.savefig(output_filepath + '/facetgrid_scatters.png')
 
 	# Ordered barchart
 	barchart = ordered_barchart(df)
 	barchart.savefig(output_filepath + '/barchart.png')
+
+	# Correlation plot
+	corr_plot = correlation_plot(df, config['visualizing']['corr_cols'])
+	corr_plot.savefig(output_filepath + '/corr_plot.png')
 
 
 if __name__ == '__main__':
