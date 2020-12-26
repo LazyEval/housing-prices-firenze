@@ -7,6 +7,7 @@ from sklearn.compose import ColumnTransformer
 
 
 def preprocessing_pipeline(cat_features, num_features):
+    """Create pre-processing pipeline to concatenate with the final estimator."""
     cat_transformer = Pipeline([
         ('imputing', SimpleImputer(strategy='most_frequent')),
         ('oh_encoding', OneHotEncoder(handle_unknown='ignore'))
