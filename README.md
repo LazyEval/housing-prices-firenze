@@ -61,13 +61,18 @@ The following models were tried:
 
 Model performance
 --
-The figure below compares the performance of the various algorithms that were tried during modeling:
+The figure below compares the performance of the various algorithms that were tried during modeling **using cross validation**:
+
 <img src="https://github.com/LazyEval/housing-prices-firenze/blob/master/reports/figures/algo_comparison.png" width="700">
 
 It is clear that the SVR model performed best and I therefore chose to select that model and tune it to create the final estimator. The figure below plots the predictions of the final estimator both on the training and on the test set:
 <img src="https://github.com/LazyEval/housing-prices-firenze/blob/master/reports/figures/pred_plots.png" width="1200">
 
 The RMSE of the final model used on the test set is 0.18.
+
+Deployment
+--
+The model was deployed using the streamlit library. The script that is run by streamlit was integrated into the project workflow so that predictions are made instantly. The API endpoint takes in a request with a set of values (that correspond to features of the house) inserted by the user and returns an estimated price.
 
 Project organization
 --
