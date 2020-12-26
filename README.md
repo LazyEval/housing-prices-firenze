@@ -62,6 +62,7 @@ The following models were tried:
 Model performance
 --
 The figure below compares the performance of the various algorithms that were tried during modeling **using cross validation**:
+
 <img src="https://github.com/LazyEval/housing-prices-firenze/blob/master/reports/figures/algo_comparison.png" width="700">
 
 It is clear that the SVR model performed best and I therefore chose to select that model and tune it to create the final estimator. The figure below plots the predictions of the final estimator both on the training and on the test set:
