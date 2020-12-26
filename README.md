@@ -1,6 +1,6 @@
 Housing price estimator: Project overview
 --
-- Created a tool to estimate the price of a home in Firenze, Italy based on data from October 2020.
+- Created a tool to estimate the price of a home (RMSLE ~ 0.18) in Firenze, Italy based on data from October 2020.
 - Scraped over 9000 house listings from Immobiliari using Python.
 - Built a data cleaning pipeline and extracted features such as district, total number of rooms, heating, and energy class.
 - Performed EDA to better understand the data and the influence of each of the features on price.
@@ -52,7 +52,7 @@ Model building
 --
 I created a few pre-processing pipelines for various models, including different transformations or imputations on the data. The data was split into training and test (20 %) sets so as to avoid data leakage and cross-validation on the pipelines was used to evaluate the model performance on unseen data and for tuning. Model selection was based on the performance on cross-validation and the test set was only used to evaluate the performance of the final model.
 
-The chosen metric is the Root Mean Squared Error (RMSE) as it is found to be more robust to outliers which seem to be abbundantly present in the dataset.
+The chosen metric is the Root Mean Squared Error (RMSE) as it is found to be more robust to outliers which seem to be abundantly present in the dataset.
 
 The following models were tried:
 - **Multiple linear regression** — baseline model.
