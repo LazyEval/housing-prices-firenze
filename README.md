@@ -5,7 +5,7 @@ Housing price estimator: Project overview
 - Built a data cleaning pipeline and extracted features such as district, total number of rooms, heating, and energy class.
 - Performed EDA to better understand the data and the influence of each of the features on price.
 - Built a pre-processing pipeline including various regression models to select the best model.
-- TODO: deploy the model using streamlit.
+- Deployed the model using streamlit: [Housing price estimator](https://share.streamlit.io/lazyeval/housing-prices-firenze/src/deployment/deploy_model.py).
 - TODO: implement testing.
 - TODO: containerization with docker.
 
