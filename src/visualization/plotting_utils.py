@@ -47,6 +47,7 @@ def scatterplot(data, x_col, y_col, hue_data, transformation=None):
 		plt.xlabel('{}'.format(x_col), size=14)
 		plt.ylabel('{}'.format(y_col), size=14)
 		plt.title('Price vs. square meters', size=14, weight='bold')
+	plt.legend(title='Zona', title_fontsize=14, fontsize=14)
 	plt.tight_layout()
 	return fig
 
