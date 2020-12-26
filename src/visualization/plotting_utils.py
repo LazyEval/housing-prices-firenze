@@ -47,6 +47,7 @@ def scatterplot(data, x_col, y_col, hue_data, transformation=None):
 		plt.xlabel('{}'.format(x_col), size=14)
 		plt.ylabel('{}'.format(y_col), size=14)
 		plt.title('Price vs. square meters', size=14, weight='bold')
+	plt.tight_layout()
 	return fig
 
 
@@ -93,6 +94,7 @@ def correlation_plot(data, corr_cols):
 	cmap = sns.diverging_palette(220, 10, as_cmap=True)
 	sns.heatmap(data[corr_cols].corr(), linewidth=.5, cbar_kws={'shrink': .8}, cmap=cmap)
 	plt.title('Correlation between numerical features', weight='bold')
+	plt.xticks(rotation=45)
 	plt.tight_layout()
 	return fig
 
