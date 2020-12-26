@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 from sklearn.pipeline import Pipeline
 from src.features import parse_config, clean_data
+from src.visualization import plot_predictions
 from src.models import preprocessing_pipeline, Model
 from src.deployment import user_input_features
 
@@ -23,25 +24,32 @@ from sklearn.model_selection import GridSearchCV
 @click.command()
 @click.argument('input_filepath', type=click.Path(exists=True))
 @click.argument('model_filepath', type=click.Path())
+@click.argument('output_filepath', type=click.Path())
 @click.argument('config_file', type=str, default='config.yml')
-def main(input_filepath, model_filepath, config_file):
+def main(input_filepath, model_filepath, output_filepath, config_file):
 	""" Runs data loading and cleaning and pre-processing scripts and saves data in ../processed."""
 	logger = logging.getLogger(__name__)
-	logger.info('Loading training data set, setting up pipeline, tuning and training model.')
+	logger.info('Loading training set, test set and model and predicting.')
 
 	# Parse config file
 	config = parse_config(config_file)
 
 	# Load data
-	X = user_input_features()
-	#X_test = pd.read_csv(input_filepath + '/X_test.csv')
-	print(X)
+	X_train = pd.read_csv(input_filepath + '/X_train.csv')
+	X_test = pd.read_csv(input_filepath + '/X_test.csv')
+	y_train = pd.read_csv(input_filepath + '/y_train.csv')
+	y_test = pd.read_csv(input_filepath + '/y_test.csv')
 
 	# Load model
 	model = Model.load(model_filepath + config['predicting']['model_name'])
 
-	# Make prediction
-	print(np.round(np.expm1(model.predict(X)), -3))
+	# Make predictions
+	train_preds = np.expm1(model.predict(X_train))
+	test_preds = np.expm1(model.predict(X_test))
+
+	# Plot predictions
+	pred_plots = plot_predictions(train_preds, test_preds, y_train, y_test)
+	pred_plots.savefig(output_filepath + '/pred_plots.png')
 
 
 if __name__ == '__main__':
