@@ -116,6 +116,7 @@ def plot_predictions(train_values, test_values, train_labels, test_labels):
 	ax2.set_xlabel('Measured')
 	ax2.set_ylabel('Predicted')
 	ax2.set_title('Test set results')
+	plt.tight_layout()
 	return fig
 
 
