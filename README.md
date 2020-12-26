@@ -46,6 +46,21 @@ I looked at the distributions, boxplots and scatter plots of the data to get a b
 
 <img src="https://github.com/LazyEval/housing-prices-firenze/blob/master/reports/figures/barchart.png" width="600">
 
+Model building
+--
+I created a few pre-processing pipelines for various models, including different transformations or imputations on the data. The data was split into training and test (20 %) sets so as to avoid data leakage and cross-validation on the pipelines was used to evaluate the model performance on unseen data and for tuning. Model selection was based on the performance on cross-validation and the test set was only used to evaluate the performance of the final model.
+
+The chosen metric is the Root Mean Squared Error (RMSE) as it is found to be more robust to outliers which seem to be abbundantly present in the dataset.
+
+The following models were tried:
+- **Multiple linear regression** — baseline model.
+- **Support vector regressor** — the relationship between the predictors and the target variable does not seem to be strictly linear, so I chose a non-linear SVR which yielded better results.
+- **Ensemble models** — I tried a series of more complex models to see how they would fit the data and generalize. As expected these models would tend to overfit the data.
+
+Model performance
+--
+
+
 Project organization
 --
 The project organization, **based on drivendata's data science cookiecutter template**, is as follows:
