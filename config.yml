@@ -20,6 +20,13 @@ features:
              'Piano', 'Posti_garage', 'Posti_esterni', 'Num_bagni', 'Num_tot_locali']
   target: 'Prezzo_EUR'
 
+visualizing:
+  continuous_vars: ['Prezzo_EUR', 'Superficie_m2']
+  scatter_1: 'Superficie_m2'
+  scatter_2: 'Prezzo_EUR'
+  facetgrid_hue: 'Zona'
+  facetgrid_var: 'Prezzo_EUR'
+
 modeling:
   num_folds: 5
   scoring: 'neg_mean_squared_error'

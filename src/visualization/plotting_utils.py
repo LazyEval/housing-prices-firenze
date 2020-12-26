@@ -83,6 +83,7 @@ def ordered_barchart(data):
 	plt.xlabel("Average price/m2", size=12)
 	plt.ylabel("District", size=12)
 	plt.title('Average price/m2 per district', weight='bold')
+	plt.tight_layout()
 	return fig
 
 
