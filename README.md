@@ -44,7 +44,7 @@ Exploratory data analysis
 --
 I looked at the distributions, boxplots and scatter plots of the data to get a better understanding of what I was working with. Below are some highlights from this analysis:
 
-<img src="https://github.com/LazyEval/housing-prices-firenze/blob/master/reports/figures/barchart.png" width="700">
+<img src="https://github.com/LazyEval/housing-prices-firenze/blob/master/reports/figures/barchart.png" width="800">
 <img src="https://github.com/LazyEval/housing-prices-firenze/blob/master/reports/figures/scatter.png" width="800">
 <img src="https://github.com/LazyEval/housing-prices-firenze/blob/master/reports/figures/corr_plot.png" width="600">
 
