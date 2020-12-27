@@ -5,7 +5,7 @@ from src.models import Model
 
 
 def user_input_features():
-	square_meters = st.sidebar.slider('Square meters', 0, 1000)
+	square_meters = st.sidebar.slider('Square meters', 30, 1000)
 	district = st.sidebar.selectbox('District', ('Bellosguardo Galluzzo', 'Coverciano Bellariva', 'Firenze Nord',
 												 'Campo Di Marte Liberta', 'Legnaia Soffiano', 'Centro', 'Oltrarno',
 												 'Zona Firenze Sud', 'Leopoldo Porta Al Prato', 'Serpiolle Careggi',
