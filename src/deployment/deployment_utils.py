@@ -5,7 +5,7 @@ from src.models import Model
 
 
 def user_input_features():
-	square_meters = st.sidebar.slider('Square meters', 30, 1000)
+	square_meters = st.sidebar.slider('Square meters', 30, 1000, 65)
 	district = st.sidebar.selectbox('District', ('Bellosguardo Galluzzo', 'Coverciano Bellariva', 'Firenze Nord',
 												 'Campo Di Marte Liberta', 'Legnaia Soffiano', 'Centro', 'Oltrarno',
 												 'Zona Firenze Sud', 'Leopoldo Porta Al Prato', 'Serpiolle Careggi',
@@ -31,7 +31,7 @@ def user_input_features():
 																 'Immobile di lusso',
 																 'Nuda proprietà, classe immobile signorile',
 																 'Nuda proprietà', 'Nuda proprietà, immobile di lusso'))
-	year_of_construction = st.sidebar.slider('Year of construction', 1300, 2020)
+	year_of_construction = st.sidebar.slider('Year of construction', 1300, 2020, 1980)
 	state = st.sidebar.selectbox('State', ('Ottimo_/_Ristrutturato', 'Buono_/_Abitabile', 'Da_ristrutturare',
 										   'Nuovo_/_In_costruzione'))
 	heating_A_C = st.sidebar.selectbox('Heating A/C', ('Autonomo', 'Centralizzato'))
