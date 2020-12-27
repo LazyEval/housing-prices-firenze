@@ -38,7 +38,7 @@ def user_input_features():
 	heating_type = st.sidebar.selectbox('Type of heating', ('radiatori', 'aria', 'stufa', 'pavimento'))
 	heating_source = st.sidebar.selectbox('Heating source', ('metano', 'gas', 'pompa di calore', 'elettrica',
 															 'fotovoltaico', 'pellet', 'gpl', 'solare'))
-	energy_class = st.sidebar.selectbox('Energy class', ('F', 'G', 'E', 'D', 'C', 'B', 'A', 'A1', 'A2', 'A3', 'A4'))
+	energy_class = st.sidebar.selectbox('Energy class', ('G', 'F', 'E', 'D', 'C', 'B', 'A', 'A1', 'A2', 'A3', 'A4'))
 	elevator = st.sidebar.selectbox('Elevator', ('sì', 'no'))
 	disabled_access = st.sidebar.selectbox('Disabled access', ('sì', 'no'))
 	floor = st.sidebar.selectbox('Floor', ('terra', '1°', '2°', '3°', '4°', '5°', '6°', '7°', '8°', '9°', '10°',
