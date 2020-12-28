@@ -1,3 +1,4 @@
+import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -91,9 +92,12 @@ def ordered_barchart(data):
 
 def correlation_plot(data, corr_cols):
 	"""Create a correlation plot for selected features of a DataFrame."""
+	corr = data[corr_cols].corr()
+	mask = np.triu(np.ones_like(corr, dtype=bool))
+
 	fig = plt.figure(figsize=(8, 6))
-	cmap = sns.diverging_palette(220, 10, as_cmap=True)
-	sns.heatmap(data[corr_cols].corr(), linewidth=.5, cbar_kws={'shrink': .8}, cmap=cmap)
+	cmap = sns.diverging_palette(230, 20, as_cmap=True)
+	sns.heatmap(corr, mask=mask, linewidth=.5, cbar_kws={'shrink': .8}, cmap=cmap, annot=True, square=True)
 	plt.title('Correlation between numerical features', weight='bold')
 	plt.xticks(rotation=45)
 	plt.tight_layout()
