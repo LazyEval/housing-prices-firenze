@@ -12,7 +12,8 @@ cleaning:
               'Prestazione energetica del fabbricato', 'Certificazione energetica', 'Disponibilità', 'Contratto',
               'Informazioni catastali', 'Spese condominio', 'Riscaldamento', 'Climatizzazione', 'Efficienza energetica',
               'Riferimento e data annuncio', 'Piano', 'Totale piani edificio', 'Posti auto', 'Locali', 'Num_altri',
-              'Num_camere_letto', 'Num_locali', 'Altre caratteristiche', 'Altre_caratteristiche', 'Data_annuncio']
+              'Num_camere_letto', 'Num_locali', 'Altre caratteristiche', 'Altre_caratteristiche', 'Data_annuncio',
+              'Tipo proprietà']
 
 features:
   features: ['Tipologia', 'Tipo_proprietà', 'Zona', 'Anno_costruzione', 'Stato', 'Superficie_m2', 'Riscaldamento_A_C',

@@ -27,24 +27,6 @@ def drop_columns(cols):
 	return dropper
 
 
-def select_columns(cols):
-	"""Select columns of a DataFrame."""
-
-	def selector(data):
-		return data[cols]
-
-	return selector
-
-
-def join_tables(df2):
-	"""Join two DataFrames."""
-
-	def joiner(df1):
-		return df1.join(df2)
-
-	return joiner
-
-
 def drop_nans(subset):
 	"""Drop rows of a DataFrame with NaN values in a given column and reset the index."""
 
@@ -159,8 +141,8 @@ def clean_sqm(data):
 	return data
 
 
-def clean_state(data):
-	"""Clean the state feature."""
+def clean_condition(data):
+	"""Clean the condition feature."""
 	data['Stato'] = data['Stato'].str.replace(' ', '_')
 	return data
 
@@ -189,6 +171,59 @@ def remove_outliers(cols):
 def create_price_sqm(data):
 	"""Create price per square meter feature."""
 	data['Prezzo_per_m2'] = data['Prezzo_EUR'] / data['Superficie_m2']
+	return data
+
+
+def create_property(data):
+	"""Create whole/naked property feature."""
+	data['Proprietà_I_N'] = (data['Tipo proprietà']
+							 .str.extract(r'(Intera proprietà|Nuda proprietà|Multiproprietà)', expand=False)
+							 .str.lower())
+
+	mask = data['Tipo proprietà'].notnull() & data['Proprietà_I_N'].isna()
+	data.loc[mask, 'Proprietà_I_N'] = 'intera proprietà'
+	return data
+
+
+def create_property_type(data):
+	"""Create property type feature."""
+	data['Tipo_proprietà'] = (data['Tipo proprietà']
+							  .str.split(',').str[-1]
+							  .str.strip()
+							  .str.lower()
+							  .str.extract('(.*immobile.*)'))
+	return data
+
+
+def create_contract_type(data):
+	"""Create contract type feature."""
+	mask = data['Contratto'].str.match('.*a reddito.*')
+
+	data.loc[mask, 'A_reddito'] = 'sì'
+	data['A_reddito'] = data['A_reddito'].fillna('no')
+	return data
+
+
+def create_house_type(data):
+	"""Create house type feature."""
+	data['Tipologia'] = data['Tipologia'].str.lower()
+
+	# Define masks
+	mask1 = data['Tipologia'].str.match('.*appartamento.*')
+	mask2 = data['Tipologia'].str.match('.*terratetto.*')
+	mask3 = data['Tipologia'].str.match('(.*villa.*pluri.*)|(.*villa.*bifa.*)')
+	mask4 = data['Tipologia'] == 'villa a schiera'
+
+	# Apply masks
+	data.loc[mask1, 'Tipologia'] = 'appartamento'
+	data.loc[mask2, 'Tipologia'] = 'terratetto'
+	data.loc[mask3, 'Tipologia'] = 'villa plurifamiliare'
+	data.loc[mask4, 'Tipologia'] = 'villa unifamiliare'
+
+	# Value_counts lower than or equal to 11 set to "other"
+	mask5 = data['Tipologia'].value_counts() <= 11
+	house_list = data['Tipologia'].value_counts().loc[mask5].index.values
+	data.loc[data['Tipologia'].isin(house_list), 'Tipologia'] = 'altro'
 	return data
 
 
