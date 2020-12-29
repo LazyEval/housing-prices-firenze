@@ -242,7 +242,7 @@ def create_house_type(data):
 
 def create_year_bins(data):
 	"""Create binned feature of year of construction."""
-	data['Anno_costruzione_bins'] = pd.cut(data['Anno di costruzione'], [0, 1850, 1950, 2000, 2022])
+	data['Anno_costruzione_bins'] = pd.cut(data['Anno di costruzione'], [0, 1850, 1950, 2000, 2021])
 	return data
 
 

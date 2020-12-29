@@ -6,11 +6,12 @@ from src.models import Model
 
 def user_input_features():
 	square_meters = st.sidebar.number_input('Square meters', 30, 1000, 65)
-	district = st.sidebar.selectbox('District', ('Bellosguardo Galluzzo', 'Coverciano Bellariva', 'Firenze Nord',
-												 'Campo Di Marte Liberta', 'Legnaia Soffiano', 'Centro', 'Oltrarno',
-												 'Zona Firenze Sud', 'Leopoldo Porta Al Prato', 'Serpiolle Careggi',
-												 "L'Isolotto", 'Settignano Rovezzano', 'Zona Bolognese Le Cure',
-												 'Michelangelo Porta Romana', 'Ugnano Mantignano'))
+	district = st.sidebar.selectbox('District', ('Bellosguardo Galluzzo', 'Campo Di Marte Liberta', 'Centro',
+												 'Coverciano Bellariva', 'Firenze Nord', 'L\'Isolotto',
+												 'Legnaia Soffiano', 'Leopoldo Porta Al Prato',
+												 'Michelangelo Porta Romana', 'Oltrarno', 'Serpiolle Careggi',
+												 'Settignano Rovezzano', 'Ugnano Mantignano', 'Zona Bolognese Le Cure',
+												 'Zona Firenze Sud'))
 	num_bathrooms = st.sidebar.slider('Number of bathrooms', 0, 5, 1)
 	num_rooms = st.sidebar.slider('Number of rooms', 0, 20, 3)
 	house_type = st.sidebar.selectbox('Type of house', ('appartamento', 'terratetto', 'villa unifamiliare',
@@ -24,7 +25,7 @@ def user_input_features():
 																		 pd.Interval(left=2000, right=2021)))
 	state = st.sidebar.selectbox('State', ('ottimo/ristrutturato', 'buono/abitabile', 'da ristrutturare',
 										   'nuovo/in costruzione'))
-	heating_A_C = st.sidebar.selectbox('Heating A/C', ('Autonomo', 'Centralizzato'))
+	heating_A_C = st.sidebar.selectbox('Heating A/C', ('autonomo', 'centralizzato'))
 	heating_type = st.sidebar.selectbox('Type of heating', ('radiatori', 'aria', 'stufa', 'pavimento'))
 	heating_source = st.sidebar.selectbox('Heating source', ('metano', 'gas', 'pompa di calore', 'elettrica',
 															 'fotovoltaico', 'pellet', 'gpl', 'solare'))
