@@ -8,7 +8,7 @@ import pandas as pd
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import KFold
 from sklearn.metrics import mean_squared_error
-from sklearn.svm import SVR
+from sklearn.ensemble import RandomForestRegressor
 
 from src.features import parse_config
 from src.models import preprocessing_pipeline, Model
@@ -28,9 +28,9 @@ def main(input_filepath, output_filepath, config_file):
 
 	# Load data
 	X_train = pd.read_csv(input_filepath + '/X_train.csv')
-	y_train = np.log1p(pd.read_csv(input_filepath + '/y_train.csv').values)
+	y_train = pd.read_csv(input_filepath + '/y_train.csv').values
 	X_test = pd.read_csv(input_filepath + '/X_test.csv')
-	y_test = np.log1p(pd.read_csv(input_filepath + '/y_test.csv').values)
+	y_test = pd.read_csv(input_filepath + '/y_test.csv').values
 
 	# Pre-processing and modeling pipeline
 	cat_features = X_train.select_dtypes(include='object').columns
@@ -38,15 +38,16 @@ def main(input_filepath, output_filepath, config_file):
 
 	pipe = Pipeline([
 		('preprocessing', preprocessing_pipeline(cat_features, num_features)),
-		('model', SVR())
+		('model', RandomForestRegressor())
 	])
 
 	# Tune model
 	kf = KFold(config['modeling']['num_folds'], shuffle=True,
 			   random_state=config['seeding']['seed']).get_n_splits(X_train.values)
 	param_grid = {
-		'model__C': 10. ** np.arange(-3, 3),
-		'model__gamma': 10. ** np.arange(-3, 3),
+		'model__n_estimators': [5, 20, 50, 100],
+		'model__min_samples_split': [2, 8, 10],
+		'model__max_features': [2, 5, 10]
 	}
 
 	model = Model.tune(pipe, X_train, y_train.ravel(), param_grid, cv=kf)

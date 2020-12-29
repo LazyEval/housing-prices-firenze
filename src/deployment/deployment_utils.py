@@ -5,35 +5,25 @@ from src.models import Model
 
 
 def user_input_features():
-	square_meters = st.sidebar.slider('Square meters', 30, 1000, 65)
+	square_meters = st.sidebar.number_input('Square meters', 30, 1000, 65)
 	district = st.sidebar.selectbox('District', ('Bellosguardo Galluzzo', 'Coverciano Bellariva', 'Firenze Nord',
 												 'Campo Di Marte Liberta', 'Legnaia Soffiano', 'Centro', 'Oltrarno',
 												 'Zona Firenze Sud', 'Leopoldo Porta Al Prato', 'Serpiolle Careggi',
 												 "L'Isolotto", 'Settignano Rovezzano', 'Zona Bolognese Le Cure',
 												 'Michelangelo Porta Romana', 'Ugnano Mantignano'))
-	num_bathrooms = st.sidebar.slider('Number of bathrooms', 0, 10, 1)
+	num_bathrooms = st.sidebar.slider('Number of bathrooms', 0, 5, 1)
 	num_rooms = st.sidebar.slider('Number of rooms', 0, 20, 3)
-	type_of_house = st.sidebar.selectbox('Type of house', ('Appartamento', 'Terratetto unifamiliare',
-														   'Villa unifamiliare', 'Terratetto plurifamiliare', 'Rustico',
-														   'Villa a schiera', 'Attico', 'Open space',
-														   'Villa bifamiliare', 'Loft', 'Appartamento in villa',
-														   'Casa colonica', 'Mansarda', 'Casale',
-														   'Villa plurifamiliare', 'Bed & Breakfast', 'Ufficio'))
-	type_of_property = st.sidebar.selectbox('Type of property', ('Intera proprietà, classe immobile media',
-																 'Intera proprietà, classe immobile signorile',
-																 'Intera proprietà, classe immobile economica',
-																 'Intera proprietà',
-																 'Nuda proprietà, classe immobile media',
-																 'Intera proprietà, immobile di lusso',
-																 'Classe immobile economica', 'Classe immobile media',
-																 'Classe immobile signorile',
-																 'Nuda proprietà, classe immobile economica',
-																 'Immobile di lusso',
-																 'Nuda proprietà, classe immobile signorile',
-																 'Nuda proprietà', 'Nuda proprietà, immobile di lusso'))
-	year_of_construction = st.sidebar.slider('Year of construction', 1300, 2020, 1980)
-	state = st.sidebar.selectbox('State', ('Ottimo_/_Ristrutturato', 'Buono_/_Abitabile', 'Da_ristrutturare',
-										   'Nuovo_/_In_costruzione'))
+	house_type = st.sidebar.selectbox('Type of house', ('appartamento', 'terratetto', 'villa unifamiliare',
+														'open space', 'loft', 'attico', 'altro'))
+	property_class = st.sidebar.selectbox('Property class', ('economica', 'media', 'signorile', 'lusso'))
+	property_type = st.sidebar.selectbox('Property type', ('intera proprietà', 'nuda proprietà', 'multiproprietà'))
+	income_property = st.sidebar.selectbox('Income property', ('sì', 'no'))
+	year_of_construction = st.sidebar.selectbox('Year of construction', (pd.Interval(left=0, right=1850),
+																		 pd.Interval(left=1850, right=1950),
+																		 pd.Interval(left=1950, right=2000),
+																		 pd.Interval(left=2000, right=2021)))
+	state = st.sidebar.selectbox('State', ('ottimo/ristrutturato', 'buono/abitabile', 'da ristrutturare',
+										   'nuovo/in costruzione'))
 	heating_A_C = st.sidebar.selectbox('Heating A/C', ('Autonomo', 'Centralizzato'))
 	heating_type = st.sidebar.selectbox('Type of heating', ('radiatori', 'aria', 'stufa', 'pavimento'))
 	heating_source = st.sidebar.selectbox('Heating source', ('metano', 'gas', 'pompa di calore', 'elettrica',
@@ -47,12 +37,14 @@ def user_input_features():
 	external_parking = st.sidebar.slider('External parking', 0, 10, 0)
 
 	data = {
-		'Tipologia': type_of_house,
-		'Tipo_proprietà': type_of_property,
-		'Zona': district,
-		'Anno_costruzione': year_of_construction,
-		'Stato': state,
+		'Tipologia': house_type,
 		'Superficie_m2': square_meters,
+		'Zona': district,
+		'Classe_immobile': property_class,
+		'Tipo_proprietà': property_type,
+		'A_reddito': income_property,
+		'Stato': state,
+		'Anno_costruzione_bins': year_of_construction,
 		'Riscaldamento_A_C': heating_A_C,
 		'Tipo_riscaldamento': heating_type,
 		'Alimentazione_riscaldamento': heating_source,
@@ -69,10 +61,9 @@ def user_input_features():
 
 
 def predict(model_filepath, config, input_data):
-
 	# Load model
 	model = Model.load(model_filepath + config['predicting']['model_name'])
 
 	# Predict
-	prediction = int(np.round(np.expm1(model.predict(input_data)), -3)[0])
+	prediction = int(np.round(model.predict(input_data), -3)[0])
 	return prediction

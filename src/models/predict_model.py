@@ -44,8 +44,8 @@ def main(input_filepath, model_filepath, output_filepath, config_file):
 	model = Model.load(model_filepath + config['predicting']['model_name'])
 
 	# Make predictions
-	train_preds = np.expm1(model.predict(X_train))
-	test_preds = np.expm1(model.predict(X_test))
+	train_preds = model.predict(X_train)
+	test_preds = model.predict(X_test)
 
 	# Plot predictions
 	pred_plots = plot_predictions(train_preds, test_preds, y_train, y_test)
