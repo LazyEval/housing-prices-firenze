@@ -26,9 +26,6 @@ def main(model_filepath='models/', config_file='config.yml'):
 				'Italy based on a series of features. The model is based on data collected from *immobiliari.it* in'
 				' October 2020.  \n  \n Feel free to try it out and let me know what you think!')
 
-	st.markdown('Here is your input shown in a DataFrame:')
-	st.dataframe(X)
-
 	if st.button('Estimate the value of your house'):
 		prediction = predict(model_filepath, config, X)
 		st.markdown('Estimated price for this house:')

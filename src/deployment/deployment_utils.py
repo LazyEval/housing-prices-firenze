@@ -19,10 +19,8 @@ def user_input_features():
 	property_class = st.sidebar.selectbox('Property class', ('economica', 'media', 'signorile', 'lusso'))
 	property_type = st.sidebar.selectbox('Property type', ('intera proprietà', 'nuda proprietà', 'multiproprietà'))
 	income_property = st.sidebar.selectbox('Income property', ('sì', 'no'))
-	year_of_construction = st.sidebar.selectbox('Year of construction', (pd.Interval(left=0, right=1850),
-																		 pd.Interval(left=1850, right=1950),
-																		 pd.Interval(left=1950, right=2000),
-																		 pd.Interval(left=2000, right=2021)))
+	year_of_construction = st.sidebar.selectbox('Year of construction', ('(0, 1850]', '(1850, 1950]', '(1950, 2000]',
+																		 '(2000, 2021]'))
 	state = st.sidebar.selectbox('State', ('ottimo/ristrutturato', 'buono/abitabile', 'da ristrutturare',
 										   'nuovo/in costruzione'))
 	heating_A_C = st.sidebar.selectbox('Heating A/C', ('autonomo', 'centralizzato'))
