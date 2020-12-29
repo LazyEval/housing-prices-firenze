@@ -5,7 +5,8 @@ from src.features import (read_data, drop_columns, drop_nans, rename_cols, renam
 						  create_heating, create_heating_type, create_heating_source, create_energy_class,
 						  create_listing_date, create_elevator, create_disabled_access, create_floor,
 						  create_garage_parking, create_external_parking, create_num_bathrooms, create_num_rooms,
-						  string_parser, create_features_list, create_other_features, create_pipeline)
+						  string_parser, create_parsed_features, create_windows, create_garden, create_furnished,
+						  create_terrace, create_exposure, create_other_features, create_pipeline)
 
 
 def load_raw_data(path, config):
@@ -54,7 +55,13 @@ def clean_data(config):
 		create_external_parking,
 		create_num_bathrooms,
 		create_num_rooms,
-		create_other_features(string_parser, create_features_list),
+		create_parsed_features(string_parser),
+		create_windows,
+		create_garden,
+		create_furnished,
+		create_terrace,
+		create_exposure,
+		create_other_features,
 		drop_columns(config['cleaning']['drop_cols']),
 		rename_col('Piani', 'Piano'),
 	])

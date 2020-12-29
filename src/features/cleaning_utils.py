@@ -190,10 +190,10 @@ def create_price_sqm(data):
 def create_property_class(data):
 	"""Create property type feature."""
 	data['Classe_immobile'] = (data['Tipo proprietà']
-								.str.split(',').str[-1]
-								.str.strip()
-								.str.lower()
-								.str.extract('(economica|media|signorile|lusso)', expand=False))
+							   .str.split(',').str[-1]
+							   .str.strip()
+							   .str.lower()
+							   .str.extract('(economica|media|signorile|lusso)', expand=False))
 	return data
 
 
@@ -386,37 +386,75 @@ def string_parser(row):
 	return row['Altre_caratteristiche']
 
 
-def create_features_list(data):
-	"""Create list of all possible features present in "Altre caratteristiche" column."""
-	features_list = []
-	for idx, series in data.iterrows():
-		for feature in series.loc['Altre_caratteristiche']:
-			if feature not in features_list:
-				features_list.append(feature)
-		else:
-			continue
-	return features_list
-
-
-def create_other_features(parser, list_creator):
-	"""Create columns for each other feature extracted."""
+def create_parsed_features(parser):
+	"""Create feature from parsed attributes."""
 
 	def creator(data):
-		# Parse features
 		data['Altre_caratteristiche'] = data['Altre caratteristiche'].copy()
 		data['Altre_caratteristiche'] = data.apply(parser, axis=1)
-
-		# Create features list
-		features_list = list_creator(data)
-
-		# Create one-hot encoded column for each extracted feature
-		for feature in features_list:
-			mask = data['Altre_caratteristiche'].apply(lambda x: feature in x)
-			data.loc[mask, feature] = 'sì'
-			data[feature] = data[feature].fillna('no')
 		return data
 
 	return creator
+
+
+def create_windows(data):
+	"""Create windows feature."""
+	data['Infissi'] = (data['Altre_caratteristiche']
+					   .apply(lambda x: str([y for y in x if 'Infissi' in y]))
+					   .str.extract('(doppio|triplo)', expand=False)
+					   .fillna('singolo'))
+	return data
+
+
+def create_garden(data):
+	"""Create garden feature."""
+	data['Giardino'] = (data['Altre_caratteristiche']
+						.apply(lambda x: str([y for y in x if 'Giardino' in y]))
+						.str.extract('(comune|privato)', expand=False)
+						.fillna('no'))
+	return data
+
+
+def create_furnished(data):
+	"""Create furnished feature."""
+	data['Arredato'] = data['Altre_caratteristiche'].apply(lambda x: str([y for y in x if 'Arredat' in y]))
+	data['Arredato'] = data['Arredato'].replace({'[\'Parzialmente Arredato\']': 'parzialmente',
+												 '[\'Solo Cucina Arredata\']': 'parzialmente',
+												 '[\'Arredato\']': 'totalmente',
+												 '[]': 'no'})
+	return data
+
+
+def create_terrace(data):
+	"""Create terrace features."""
+	data['Terrazza'] = (data['Altre_caratteristiche']
+						.apply(lambda x: str([y for y in x if 'Terrazza' in y or 'Balcone' in y])))
+	data.loc[~(data['Terrazza'] == '[]'), 'Terrazza'] = 'sì'
+	data.loc[data['Terrazza'] == '[]', 'Terrazza'] = 'no'
+	return data
+
+
+def create_exposure(data):
+	"""Create exposure feature."""
+	data['Esposizione'] = (data['Altre_caratteristiche']
+						   .apply(lambda x: str([y for y in x if 'Esposizione' in y]))
+						   .str.extract('(doppia|esterna|interna)', expand=False)
+						   .fillna('esterna'))
+	return data
+
+
+def create_other_features(data):
+	"""Create columns for each other feature extracted."""
+	# Features list
+	features_list = ['Fibra ottica', 'Cancello elettrico', 'Cantina', 'Impianto di allarme', 'Mansarda', 'Taverna',
+					 'Cablato', 'Idromassaggio', 'Piscina']
+
+	# Create one-hot encoded column for each extracted feature
+	for feature in features_list:
+		mask = data['Altre_caratteristiche'].apply(lambda x: feature in x)
+		data.loc[mask, feature] = 'sì'
+		data[feature] = data[feature].fillna('no')
+	return data
 
 
 def data_split(test_size=0.2):

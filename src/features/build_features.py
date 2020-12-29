@@ -27,10 +27,9 @@ def main(input_filepath, output_filepath, config_file):
 	df_clean.to_csv(output_filepath + '/data_clean.csv', index=False)
 
 	# Select features for pre-processing and modeling
-	features = config['features']['features']
 	target = config['features']['target']
 
-	X = df_clean[features]
+	X = df_clean.drop(columns=config['features']['drop_cols'])
 	y = df_clean[target]
 
 	# Split data

@@ -5,6 +5,7 @@ from .cleaning_utils import (read_data, drop_columns, drop_nans, rename_cols, re
 							 create_heating, create_heating_type, create_heating_source, create_energy_class,
 							 create_listing_date, create_elevator, create_disabled_access, create_floor,
 							 create_garage_parking, create_external_parking, create_num_bathrooms, create_num_rooms,
-							 string_parser, create_features_list, create_other_features, data_split, save_data,
+							 string_parser, create_parsed_features, create_windows, create_garden, create_furnished,
+							 create_terrace, create_exposure, create_other_features, data_split, save_data,
 							 create_pipeline, parse_config)
 from .cleaning_pipeline import load_raw_data, clean_data

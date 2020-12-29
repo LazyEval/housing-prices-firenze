@@ -16,11 +16,8 @@ cleaning:
               'Tipo proprietà', 'Anno di costruzione']
 
 features:
-  features: ['Tipologia', 'Superficie_m2', 'Zona', 'Classe_immobile', 'Tipo_proprietà', 'A_reddito', 'Stato',
-             'Anno_costruzione_bins', 'Riscaldamento_A_C', 'Tipo_riscaldamento', 'Alimentazione_riscaldamento',
-             'Classe_energetica', 'Ascensore', 'Accesso_disabili', 'Piano', 'Posti_garage', 'Posti_esterni',
-             'Num_bagni', 'Num_tot_locali']
-  target: 'Prezzo_EUR'
+  drop_cols: ['Prezzo_per_m2', 'Prezzo_EUR']
+  target: ['Prezzo_EUR']
 
 visualizing:
   continuous_vars: ['Prezzo_EUR', 'Superficie_m2']
