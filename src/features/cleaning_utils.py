@@ -157,12 +157,25 @@ def clean_outliers(col, current_value, new_value):
 	return cleaner
 
 
-def remove_outliers(cols):
-	"""Remove all rows from a DataFrame that contain outliers in log-transformed selected columns by using a z
-	statistic."""
+def remove_outliers_iqr(col, bounds=[.25, .75], k=1.5):
+	"""Remove all rows from a DataFrame that contain outliers based on the iqr of the variable."""
 
 	def remover(data):
-		data = data.loc[(np.abs(stats.zscore(np.log(data[cols]))) < 3).all(axis=1)]
+		s = data[col]
+		q = s.quantile(bounds)
+		iqr = q.iloc[1] - q.iloc[0]
+		mask = (s >= q.iloc[0]-k*iqr) & (s <= q.iloc[1]+k*iqr)
+		data = data[mask]
+		return data
+
+	return remover
+
+
+def remove_outliers_zscore(cols, z=3):
+	"""Remove all rows from a DataFrame that contain outliers based on the z-score of the variables."""
+
+	def remover(data):
+		data = data.loc[(np.abs(stats.zscore(np.log(data[cols]))) < z).all(axis=1)]
 		return data
 
 	return remover
