@@ -22,7 +22,7 @@ def main(input_filepath, output_filepath, config_file):
 	# Load data
 	df = load_raw_data(input_filepath, config)
 
-	# Clean and save data for EDA and pre-processing
+	# Clean and save data for EDA
 	df_clean = clean_data(config)(df)
 	df_clean.to_csv(output_filepath + '/data_clean.csv', index=False)
 

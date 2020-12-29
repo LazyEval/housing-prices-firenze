@@ -13,12 +13,13 @@ cleaning:
               'Informazioni catastali', 'Spese condominio', 'Riscaldamento', 'Climatizzazione', 'Efficienza energetica',
               'Riferimento e data annuncio', 'Piano', 'Totale piani edificio', 'Posti auto', 'Locali', 'Num_altri',
               'Num_camere_letto', 'Num_locali', 'Altre caratteristiche', 'Altre_caratteristiche', 'Data_annuncio',
-              'Tipo proprietà']
+              'Tipo proprietà', 'Anno di costruzione']
 
 features:
-  features: ['Tipologia', 'Tipo_proprietà', 'Zona', 'Anno_costruzione', 'Stato', 'Superficie_m2', 'Riscaldamento_A_C',
-             'Tipo_riscaldamento', 'Alimentazione_riscaldamento', 'Classe_energetica', 'Ascensore', 'Accesso_disabili',
-             'Piano', 'Posti_garage', 'Posti_esterni', 'Num_bagni', 'Num_tot_locali']
+  features: ['Tipologia', 'Superficie_m2', 'Zona', 'Classe_immobile', 'Tipo_proprietà', 'A_reddito', 'Stato',
+             'Anno_costruzione_bins', 'Riscaldamento_A_C', 'Tipo_riscaldamento', 'Alimentazione_riscaldamento',
+             'Classe_energetica', 'Ascensore', 'Accesso_disabili', 'Piano', 'Posti_garage', 'Posti_esterni',
+             'Num_bagni', 'Num_tot_locali']
   target: 'Prezzo_EUR'
 
 visualizing:
@@ -35,5 +36,4 @@ modeling:
   scoring: 'neg_mean_squared_error'
 
 predicting:
- model_name: SVR.pkl
-
+ model_name: RandomForestRegressor.pkl

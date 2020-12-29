@@ -143,7 +143,7 @@ def clean_sqm(data):
 
 def clean_condition(data):
 	"""Clean the condition feature."""
-	data['Stato'] = data['Stato'].str.replace(' ', '_')
+	data['Stato'] = data['Stato'].str.replace(' / ', '/').str.lower()
 	return data
 
 
@@ -164,7 +164,7 @@ def remove_outliers_iqr(col, bounds=[.25, .75], k=1.5):
 		s = data[col]
 		q = s.quantile(bounds)
 		iqr = q.iloc[1] - q.iloc[0]
-		mask = (s >= q.iloc[0]-k*iqr) & (s <= q.iloc[1]+k*iqr)
+		mask = (s >= q.iloc[0] - k * iqr) & (s <= q.iloc[1] + k * iqr)
 		data = data[mask]
 		return data
 
@@ -187,24 +187,24 @@ def create_price_sqm(data):
 	return data
 
 
-def create_property(data):
-	"""Create whole/naked property feature."""
-	data['Proprietà_I_N'] = (data['Tipo proprietà']
-							 .str.extract(r'(Intera proprietà|Nuda proprietà|Multiproprietà)', expand=False)
-							 .str.lower())
-
-	mask = data['Tipo proprietà'].notnull() & data['Proprietà_I_N'].isna()
-	data.loc[mask, 'Proprietà_I_N'] = 'intera proprietà'
+def create_property_class(data):
+	"""Create property type feature."""
+	data['Classe_immobile'] = (data['Tipo proprietà']
+								.str.split(',').str[-1]
+								.str.strip()
+								.str.lower()
+								.str.extract('(economica|media|signorile|lusso)', expand=False))
 	return data
 
 
 def create_property_type(data):
-	"""Create property type feature."""
+	"""Create whole/naked property feature."""
 	data['Tipo_proprietà'] = (data['Tipo proprietà']
-							  .str.split(',').str[-1]
-							  .str.strip()
-							  .str.lower()
-							  .str.extract('(.*immobile.*)'))
+							  .str.extract(r'(Intera proprietà|Nuda proprietà|Multiproprietà)', expand=False)
+							  .str.lower())
+
+	mask = data['Tipo proprietà'].notnull() & data['Tipo_proprietà'].isna()
+	data.loc[mask, 'Tipo_proprietà'] = 'intera proprietà'
 	return data
 
 
@@ -237,6 +237,12 @@ def create_house_type(data):
 	mask5 = data['Tipologia'].value_counts() <= 11
 	house_list = data['Tipologia'].value_counts().loc[mask5].index.values
 	data.loc[data['Tipologia'].isin(house_list), 'Tipologia'] = 'altro'
+	return data
+
+
+def create_year_bins(data):
+	"""Create binned feature of year of construction."""
+	data['Anno_costruzione_bins'] = pd.cut(data['Anno di costruzione'], [0, 1850, 1950, 2000, 2022])
 	return data
 
 
