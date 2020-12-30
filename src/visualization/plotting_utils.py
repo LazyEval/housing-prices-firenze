@@ -104,23 +104,33 @@ def correlation_plot(data, corr_cols):
 	return fig
 
 
-def plot_predictions(train_values, test_values, train_labels, test_labels):
+def plot_predictions(scores, train_values, test_values, train_labels, test_labels=None):
 	"""Create scatter plots of the training set and cross-validation values vs. the true values."""
 	fig, ax = plt.subplots(figsize=(16, 8))
 
 	ax1 = plt.subplot(1, 2, 1)
 	ax1.scatter(train_labels, train_values, edgecolors=(0, 0, 0))
-	ax1.plot([train_labels.min(), train_labels.max()], [train_labels.min(), train_labels.max()], 'k--', lw=4)
+	ax1.plot([train_labels.min(), train_labels.max()], [train_labels.min(), train_labels.max()], 'r--', lw=4)
+	extra = plt.Rectangle((0, 0), 0, 0, fc="w", fill=False, edgecolor='none', linewidth=0)
+	ax1.legend([extra], [scores[0]], loc='best', fontsize=14)
 	ax1.set_xlabel('Measured')
 	ax1.set_ylabel('Predicted')
-	ax1.set_title('Training set results')
+	ax1.set_title('Training set results', size=14)
 
 	ax2 = plt.subplot(1, 2, 2)
-	ax2.scatter(test_labels, test_values, edgecolors=(0, 0, 0))
-	ax2.plot([test_labels.min(), test_labels.max()], [test_labels.min(), test_labels.max()], 'k--', lw=4)
+	if test_labels:
+		ax2.scatter(test_labels, test_values, edgecolors=(0, 0, 0))
+		ax2.plot([test_labels.min(), test_labels.max()], [test_labels.min(), test_labels.max()], 'r--', lw=4)
+		ax2.set_title('Test set results', size=14)
+	else:
+		ax2.scatter(train_labels, test_values, edgecolors=(0, 0, 0))
+		ax2.plot([train_labels.min(), train_labels.max()], [train_labels.min(), train_labels.max()], 'r--', lw=4)
+		ax2.set_title('Cross-validation results', size=14)
+	extra = plt.Rectangle((0, 0), 0, 0, fc="w", fill=False, edgecolor='none', linewidth=0)
+	ax2.legend([extra], [scores[1]], loc='best', fontsize=14)
 	ax2.set_xlabel('Measured')
 	ax2.set_ylabel('Predicted')
-	ax2.set_title('Test set results')
+
 	plt.tight_layout()
 	return fig
 
@@ -128,7 +138,7 @@ def plot_predictions(train_values, test_values, train_labels, test_labels):
 def plot_model_comparison(results, names):
 	"""Create boxplots of the model results."""
 	fig = plt.figure(figsize=(10, 10))
-	fig.title('Algorithm Comparison')
+	fig.title('Comparison of algorithms', size=14)
 	ax = fig.add_subplot(111)
 	plt.boxplot(results)
 	ax.set_xticklabels(names)
