@@ -1,5 +1,5 @@
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder, PowerTransformer
+from sklearn.preprocessing import OneHotEncoder, PowerTransformer, RobustScaler
 from sklearn.impute import SimpleImputer
 from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
@@ -14,8 +14,8 @@ def preprocessing_pipeline(cat_features, num_features):
     ])
 
     num_transformer = Pipeline([
-        ('transforming', PowerTransformer()),
-        ('imputing', SimpleImputer(strategy='median'))
+        ('transforming', RobustScaler()),
+        ('imputing', SimpleImputer(strategy='mean'))
     ])
 
     pipeline = ColumnTransformer([
