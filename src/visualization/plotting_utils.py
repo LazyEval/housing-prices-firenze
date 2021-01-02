@@ -3,14 +3,14 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-def histogram(data, columns, transformation=None):
+def histogram(data, columns, log=False):
 	"""Create histograms for a list of continuous variables."""
 	fig = plt.figure(figsize=(16, 8))
 	sns.set_style('whitegrid')
 	for i, col in enumerate(columns, 1):
 		plt.subplot(1, 2, i)
-		if transformation:
-			sns.histplot(transformation(data[col]), kde=False, binwidth=0.2)
+		if log:
+			sns.histplot(np.log(data[col]), kde=False, binwidth=0.2)
 		else:
 			sns.histplot(data[col], kde=False)
 		plt.title(col)
@@ -18,13 +18,13 @@ def histogram(data, columns, transformation=None):
 	return fig
 
 
-def boxplot(data, columns, transformation=None):
+def boxplot(data, columns, log=False):
 	"""Create boxplots for a list of continuous variables."""
 	fig = plt.figure(figsize=(16, 8))
 	for i, col in enumerate(columns, 1):
 		plt.subplot(1, 2, i)
-		if transformation:
-			plt.boxplot(transformation(data[col]), whis=None)
+		if log:
+			plt.boxplot(np.log(data[col]), whis=None)
 			plt.ylabel("log({})".format(col), size=12)
 		else:
 			plt.boxplot(data[col], whis=None)
@@ -34,41 +34,53 @@ def boxplot(data, columns, transformation=None):
 	return fig
 
 
-def scatterplot(data, x_col, y_col, hue_data, transformation=None):
+def create_hue(data):
+	gb_ordered = data.groupby('Zona').agg({'Prezzo_per_m2': 'mean'}).sort_values('Prezzo_per_m2', ascending=False)
+	data.loc[data['Zona'].isin(gb_ordered[gb_ordered['Prezzo_per_m2'] < 3500].index), 'hue'] = '< 3500 EUR/m2'
+	data.loc[data['Zona'].isin(gb_ordered[gb_ordered['Prezzo_per_m2'] >= 4500].index), 'hue'] = '> 4500 EUR/m2'
+	data.loc[(data['Zona'].isin(gb_ordered[gb_ordered['Prezzo_per_m2'] < 4500].index)) & \
+			 (data['Zona'].isin(gb_ordered[gb_ordered['Prezzo_per_m2'] >= 3500].index)), 'hue'] = '[3500, 4500) EUR/m2'
+	return data
+
+
+def scatterplot(data, x_col, y_col, hue_data, log=False):
 	"""Create scatter plot for two continuous variables."""
 	fig = plt.figure(figsize=(16, 16))
 	sns.set_style('whitegrid')
-	if transformation:
-		sns.scatterplot(x=transformation(data[x_col]), y=transformation(data[y_col]), hue=hue_data)
+
+	if log:
+		sns.scatterplot(x=np.log(data[x_col]), y=np.log(data[y_col]), hue=hue_data)
 		plt.xlabel('log({})'.format(x_col), size=14)
 		plt.ylabel('log({})'.format(y_col), size=14)
-		plt.title('Log price vs. log square meters', size=14, weight='bold')
+		plt.title('Log price vs. log square meters', size=16)
 	else:
 		sns.scatterplot(x=data[x_col], y=data[y_col], hue=hue_data)
 		plt.xlabel('{}'.format(x_col), size=14)
 		plt.ylabel('{}'.format(y_col), size=14)
-		plt.title('Price vs. square meters', size=14, weight='bold')
-	plt.legend(title='Zona', title_fontsize=14, fontsize=14)
+		plt.title('Price vs. square meters', size=16)
+	plt.legend(title='Grouped districts', title_fontsize=14, fontsize=14)
 	plt.tight_layout()
 	return fig
 
 
-def hist_per_district(data, col, row, feature, transformation=None):
+def hist_per_district(data, col, row, feature, log=False):
 	"""Create a facetgrid with histograms."""
 	g = sns.FacetGrid(data, col=col, row=row, col_wrap=3, sharex=False, sharey=False, height=5)
 
-	if transformation:
-		g.map_dataframe(sns.histplot, x=transformation(data[feature]),  binwidth=0.2)
+	if log:
+		g.map_dataframe(sns.histplot, x=np.log(data[feature]), binwidth=0.2)
 	else:
 		g.map_dataframe(sns.histplot, x=feature, binwidth=0.2)
+	g.fig.tight_layout()
 	return g
 
 
-def scatter_per_district(data, col, row, transformation=None):
+def scatter_per_district(data, col, row, log=False):
 	"""Create a facetgrid with scatter plots."""
 	g = sns.FacetGrid(data, col=col, row=row, col_wrap=3, sharex=False, sharey=False, height=5)
-	if transformation:
-		g.map_dataframe(sns.scatterplot, x=transformation(data['Superficie_m2']), y=transformation(data['Prezzo_EUR']))
+
+	if log:
+		g.map_dataframe(sns.scatterplot, x=np.log(data['Superficie_m2']), y=np.log(data['Prezzo_EUR']))
 		g.set_axis_labels("log(price)", "log(square meters)")
 	else:
 		g.map_dataframe(sns.scatterplot, x='Superficie_m2', y='Prezzo_EUR')
@@ -82,10 +94,10 @@ def ordered_barchart(data):
 	gb_ordered = data.groupby('Zona').agg({'Prezzo_per_m2': 'mean'}).sort_values('Prezzo_per_m2', ascending=False)
 
 	fig = plt.figure(figsize=(12, 10))
-	sns.barplot(x=gb_ordered['Prezzo_per_m2'], y=gb_ordered.index, ci=None)
+	sns.barplot(x=gb_ordered['Prezzo_per_m2'], y=gb_ordered.index, ci=None, color="lightblue")
 	plt.xlabel("Average price/m2", size=12)
 	plt.ylabel("District", size=12)
-	plt.title('Average price/m2 per district', weight='bold')
+	plt.title('Average price/m2 per district', size=14)
 	plt.tight_layout()
 	return fig
 
@@ -98,7 +110,7 @@ def correlation_plot(data, corr_cols):
 	fig = plt.figure(figsize=(8, 6))
 	cmap = sns.diverging_palette(230, 20, as_cmap=True)
 	sns.heatmap(corr, mask=mask, linewidth=.5, cbar_kws={'shrink': .8}, cmap=cmap, annot=True, square=True)
-	plt.title('Correlation between numerical features', weight='bold')
+	plt.title('Correlation between numerical features', size=14)
 	plt.xticks(rotation=45)
 	plt.tight_layout()
 	return fig

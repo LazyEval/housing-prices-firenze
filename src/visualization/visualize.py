@@ -3,10 +3,9 @@ import click
 import logging
 from pathlib import Path
 from dotenv import find_dotenv, load_dotenv
-import numpy as np
 import pandas as pd
 from src.features import parse_config
-from src.visualization import (histogram, boxplot, scatterplot, hist_per_district, scatter_per_district,
+from src.visualization import (histogram, boxplot, create_hue, scatterplot, hist_per_district, scatter_per_district,
 							   ordered_barchart, correlation_plot)
 
 
@@ -26,25 +25,27 @@ def main(input_filepath, output_filepath, config_file):
 	df = pd.read_csv(input_filepath + '/data_clean.csv')
 
 	# Histograms
-	histograms = histogram(df, config['visualizing']['continuous_vars'], transformation=np.log)
+	histograms = histogram(df, config['visualizing']['continuous_vars'], log=False)
 	histograms.savefig(output_filepath + '/histograms.png')
 
 	# Boxplots
-	boxplots = boxplot(df, config['visualizing']['continuous_vars'], transformation=np.log)
+	boxplots = boxplot(df, config['visualizing']['continuous_vars'], log=False)
 	boxplots.savefig(output_filepath + '/boxplots.png')
 
 	# Scatter plot
+	df = create_hue(df)
 	scatter = scatterplot(df, config['visualizing']['scatter_1'], config['visualizing']['scatter_2'],
-						  hue_data=df['Zona'], transformation=None)
+						  hue_data=df['hue'], log=False)
 	scatter.savefig(output_filepath + '/scatter.png')
+	df = df.drop(columns=['hue'])
 
 	# Facetgrid histograms
 	facetgrid_histograms = hist_per_district(df, config['visualizing']['facetgrid_hue'], None,
-											 config['visualizing']['facetgrid_var'], transformation=np.log)
+											 config['visualizing']['facetgrid_var'], log=True)
 	facetgrid_histograms.savefig(output_filepath + '/facetgrid_histograms.png')
 
 	# Facetgrid scatter plots
-	facetgrid_scatters = scatter_per_district(df, config['visualizing']['facetgrid_hue'], None, transformation=np.log)
+	facetgrid_scatters = scatter_per_district(df, config['visualizing']['facetgrid_hue'], None, log=False)
 	facetgrid_scatters.savefig(output_filepath + '/facetgrid_scatters.png')
 
 	# Ordered barchart
