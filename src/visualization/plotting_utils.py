@@ -7,12 +7,13 @@ def histogram(data, columns, log=False):
 	"""Create histograms for a list of continuous variables."""
 	fig = plt.figure(figsize=(16, 8))
 	sns.set_style('whitegrid')
+
 	for i, col in enumerate(columns, 1):
-		plt.subplot(1, 2, i)
+		plt.subplot(1, len(columns), i)
 		if log:
 			sns.histplot(np.log(data[col]), kde=False, binwidth=0.2)
 		else:
-			sns.histplot(data[col], kde=False)
+			sns.histplot(data[col], kde=False, binwidth=0.2)
 		plt.title(col)
 	plt.tight_layout()
 	return fig
@@ -21,8 +22,9 @@ def histogram(data, columns, log=False):
 def boxplot(data, columns, log=False):
 	"""Create boxplots for a list of continuous variables."""
 	fig = plt.figure(figsize=(16, 8))
+
 	for i, col in enumerate(columns, 1):
-		plt.subplot(1, 2, i)
+		plt.subplot(1, len(columns), i)
 		if log:
 			plt.boxplot(np.log(data[col]), whis=None)
 			plt.ylabel("log({})".format(col), size=12)
@@ -36,10 +38,15 @@ def boxplot(data, columns, log=False):
 
 def create_hue(data):
 	gb_ordered = data.groupby('Zona').agg({'Prezzo_per_m2': 'mean'}).sort_values('Prezzo_per_m2', ascending=False)
-	data.loc[data['Zona'].isin(gb_ordered[gb_ordered['Prezzo_per_m2'] < 3500].index), 'hue'] = '< 3500 EUR/m2'
-	data.loc[data['Zona'].isin(gb_ordered[gb_ordered['Prezzo_per_m2'] >= 4500].index), 'hue'] = '> 4500 EUR/m2'
-	data.loc[(data['Zona'].isin(gb_ordered[gb_ordered['Prezzo_per_m2'] < 4500].index)) & \
-			 (data['Zona'].isin(gb_ordered[gb_ordered['Prezzo_per_m2'] >= 3500].index)), 'hue'] = '[3500, 4500) EUR/m2'
+
+	mask1 = data['Zona'].isin(gb_ordered[gb_ordered['Prezzo_per_m2'] < 3500].index)
+	mask2 = data['Zona'].isin(gb_ordered[gb_ordered['Prezzo_per_m2'] >= 4500].index)
+	mask3 = (data['Zona'].isin(gb_ordered[gb_ordered['Prezzo_per_m2'] < 4500].index)) & \
+			(data['Zona'].isin(gb_ordered[gb_ordered['Prezzo_per_m2'] >= 3500].index))
+
+	conditions = [mask1, mask2, mask3]
+	choices = ['< 3500 EUR/m2', '> 4500 EUR/m2', '[3500, 4500) EUR/m2']
+	data['hue'] = np.select(conditions, choices)
 	return data
 
 
@@ -80,10 +87,10 @@ def scatter_per_district(data, col, row, log=False):
 	g = sns.FacetGrid(data, col=col, row=row, col_wrap=3, sharex=False, sharey=False, height=5)
 
 	if log:
-		g.map_dataframe(sns.scatterplot, x=np.log(data['Superficie_m2']), y=np.log(data['Prezzo_EUR']))
+		g.map_dataframe(sns.scatterplot, x=np.log(data['Superficie']), y=np.log(data['Prezzo']))
 		g.set_axis_labels("log(price)", "log(square meters)")
 	else:
-		g.map_dataframe(sns.scatterplot, x='Superficie_m2', y='Prezzo_EUR')
+		g.map_dataframe(sns.scatterplot, x='Superficie', y='Prezzo')
 		g.set_axis_labels("Square meters", "Price")
 	g.fig.tight_layout()
 	return g
