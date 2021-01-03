@@ -1,5 +1,6 @@
 seeding:
   seed: 14
+  rng: np.random.RandomState(0)
 
 cleaning:
   filenames: ['/caratteristiche.xlsx', '/costi.xlsx', '/efficienza_energetica.xlsx']
@@ -8,29 +9,31 @@ cleaning:
   drop_cols_2: ['numero immobili', 'offerta minima', 'rialzo minimo', 'Spesa prenota debito', 'Contributo non dovuto',
                 'Tipo vendita', 'data vendita']
   subset: ['Zona', 'Superficie']
-  drop_cols: ['Indirizzo', 'Prezzo', 'Superficie', 'Immobile garantito', 'Indice prest. energetica rinnovabile',
+  drop_cols: ['Indirizzo', 'Immobile garantito', 'Indice prest. energetica rinnovabile',
               'Prestazione energetica del fabbricato', 'Certificazione energetica', 'Disponibilità', 'Contratto',
-              'Informazioni catastali', 'Spese condominio', 'Riscaldamento', 'Climatizzazione', 'Efficienza energetica',
-              'Riferimento e data annuncio', 'Piano', 'Totale piani edificio', 'Posti auto', 'Locali', 'Num_altri',
+              'Informazioni catastali', 'Spese condominio', 'Riscaldamento', 'Efficienza energetica',
+              'Riferimento e data annuncio', 'Totale piani edificio', 'Posti auto', 'Locali', 'Num_altri',
               'Num_camere_letto', 'Num_locali', 'Altre caratteristiche', 'Altre_caratteristiche', 'Data_annuncio',
-              'Tipo proprietà', 'Anno di costruzione']
+              'Tipo proprietà', 'Anno di costruzione', 'Tipologia']
 
 features:
-  drop_cols: ['Prezzo_per_m2', 'Prezzo_EUR']
-  target: ['Prezzo_EUR']
+  drop_cols: ['Prezzo_per_m2', 'Prezzo']
+  target: ['Prezzo']
 
 visualizing:
-  continuous_vars: ['Prezzo_EUR', 'Superficie_m2']
-  scatter_1: 'Superficie_m2'
-  scatter_2: 'Prezzo_EUR'
+  continuous_vars: ['Prezzo', 'Superficie']
+  scatter_1: 'Superficie'
+  scatter_2: 'Prezzo'
   facetgrid_hue: 'Zona'
-  facetgrid_var: 'Prezzo_EUR'
-  corr_cols: ['Prezzo_EUR', 'Superficie_m2', 'Num_bagni', 'Num_tot_locali', 'Posti_garage', 'Posti_esterni',
-              'Anno_costruzione']
+  facetgrid_var: 'Prezzo'
+  corr_cols: ['Prezzo', 'Superficie', 'Num_bagni', 'Num_tot_locali', 'Posti_garage', 'Posti_esterni']
 
 modeling:
   num_folds: 5
   scoring: 'neg_mean_squared_error'
+  param_grid: {'model__n_estimators': [ 5, 20, 50, 100 ],
+               'model__min_samples_split': [ 2, 8, 10 ],
+               'model__max_features': [ 2, 5, 10 ]}
 
 predicting:
  model_name: RandomForestRegressor.pkl

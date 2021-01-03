@@ -1,9 +1,7 @@
 import numpy as np
 import pandas as pd
-import pickle
 import yaml
 from scipy import stats
-from sklearn.model_selection import train_test_split
 
 
 def parse_config(config_file):
@@ -39,16 +37,6 @@ def drop_nans(subset):
 def rename_cols(data):
 	"""Rename columns of a DataFrame by capitalizing them."""
 	return data.rename(columns=str.capitalize)
-
-
-def rename_col(col, new_col):
-	"""Rename specific column of a DataFrame."""
-
-	def renamer(data):
-		data = data.rename(columns={col: new_col})
-		return data
-
-	return renamer
 
 
 def drop_duplicates(data):
@@ -115,29 +103,32 @@ def impute_district(data):
 
 def clean_district(data):
 	"""Clean the district feature."""
-	data['Zona'] = data['Zona'].str.replace('-', ' ').str.replace('/', '').str.title().replace(
-		{'L Isolotto': 'L\'Isolotto'})
+	data['Zona'] = (data['Zona']
+					.str.replace('-', ' ')
+					.str.replace('/', '')
+					.str.title()
+					.replace({'L Isolotto': 'L\'Isolotto'}))
 	return data
 
 
 def clean_price(data):
 	"""Clean the price feature."""
-	data['Prezzo_EUR'] = data['Prezzo'].str.split('€').str[1].str.replace('.', '').astype('float')
+	data['Prezzo'] = data['Prezzo'].str.split('€').str[1].str.replace('.', '').astype('float')
 	return data
 
 
 def clean_sqm(data):
 	"""Clean the square meters feature."""
-	mask = data['Superficie'].str.contains(r'\|', na=False)
-	data.loc[mask, 'Superficie_m2'] = (data.loc[mask, 'Superficie']
-									   .str.extract(r'commerciale (\d+\.?\d*)')[0]
-									   .str.replace('.', '')
-									   )
-	data.loc[~mask, 'Superficie_m2'] = (data.loc[~mask, 'Superficie']
-										.str.extract(r'(\d+\.?\d*)')[0]
-										.str.replace('.', '')
-										)
-	data['Superficie_m2'] = data['Superficie_m2'].astype('float')
+	mask = data['Superficie'].str.contains('\|', na=False)
+
+	data['Superficie'] = (data['Superficie']
+						  .mask(mask, data['Superficie']
+								.str.extract('commerciale (\d+\.?\d*)', expand=False)
+								.str.replace('.', ''))
+						  .where(mask, data['Superficie']
+								 .str.extract('(\d+\.?\d*)', expand=False)
+								 .str.replace('.', ''))
+						  .astype('float64'))
 	return data
 
 
@@ -181,17 +172,25 @@ def remove_outliers_zscore(cols, z=3):
 	return remover
 
 
+def filter_data(col, min_value, max_value):
+	"""Filter DataFrame by min and max value for a specific column."""
+
+	def filter(data):
+		data = data.loc[(data[col] > min_value) & (data[col] < max_value)]
+		return data
+
+	return filter
+
+
 def create_price_sqm(data):
 	"""Create price per square meter feature."""
-	data['Prezzo_per_m2'] = data['Prezzo_EUR'] / data['Superficie_m2']
+	data['Prezzo_per_m2'] = data['Prezzo'] / data['Superficie']
 	return data
 
 
 def create_property_class(data):
 	"""Create property type feature."""
 	data['Classe_immobile'] = (data['Tipo proprietà']
-							   .str.split(',').str[-1]
-							   .str.strip()
 							   .str.lower()
 							   .str.extract('(economica|media|signorile|lusso)', expand=False))
 	return data
@@ -200,43 +199,31 @@ def create_property_class(data):
 def create_property_type(data):
 	"""Create whole/naked property feature."""
 	data['Tipo_proprietà'] = (data['Tipo proprietà']
-							  .str.extract(r'(Intera proprietà|Nuda proprietà|Multiproprietà)', expand=False)
-							  .str.lower())
+							  .str.lower()
+							  .str.extract('(intera proprietà|nuda proprietà|multiproprietà)', expand=False))
 
+	mask = data['Contratto'].str.contains('a reddito')
+	data['Tipo_proprietà'] = data['Tipo_proprietà'].mask(mask, 'a reddito')
+
+	# Assume the remaining property types that are not missing but also not specified are "intera proprietà"
 	mask = data['Tipo proprietà'].notnull() & data['Tipo_proprietà'].isna()
-	data.loc[mask, 'Tipo_proprietà'] = 'intera proprietà'
-	return data
-
-
-def create_contract_type(data):
-	"""Create contract type feature."""
-	mask = data['Contratto'].str.match('.*a reddito.*')
-
-	data.loc[mask, 'A_reddito'] = 'sì'
-	data['A_reddito'] = data['A_reddito'].fillna('no')
+	data['Tipo_proprietà'] = data['Tipo_proprietà'].mask(mask, 'intera proprietà')
 	return data
 
 
 def create_house_type(data):
 	"""Create house type feature."""
-	data['Tipologia'] = data['Tipologia'].str.lower()
+	data['Tipologia_casa'] = data['Tipologia'].str.lower().replace({'appartamento in villa': 'appartamento',
+																	'terratetto unifamiliare': 'terratetto',
+																	'terratetto plurifamiliare': 'terratetto',
+																	'villa bifamiliare': 'villa plurifamiliare',
+																	'villa a schiera': 'villa unifamiliare'})
 
-	# Define masks
-	mask1 = data['Tipologia'].str.match('.*appartamento.*')
-	mask2 = data['Tipologia'].str.match('.*terratetto.*')
-	mask3 = data['Tipologia'].str.match('(.*villa.*pluri.*)|(.*villa.*bifa.*)')
-	mask4 = data['Tipologia'] == 'villa a schiera'
+	# Value_counts lower than or equal to 15 set to "other"
+	others_list = data['Tipologia'].value_counts().loc[data['Tipologia'].value_counts() < 15].index.values
+	mask = data['Tipologia'].isin(others_list)
 
-	# Apply masks
-	data.loc[mask1, 'Tipologia'] = 'appartamento'
-	data.loc[mask2, 'Tipologia'] = 'terratetto'
-	data.loc[mask3, 'Tipologia'] = 'villa plurifamiliare'
-	data.loc[mask4, 'Tipologia'] = 'villa unifamiliare'
-
-	# Value_counts lower than or equal to 11 set to "other"
-	mask5 = data['Tipologia'].value_counts() <= 11
-	house_list = data['Tipologia'].value_counts().loc[mask5].index.values
-	data.loc[data['Tipologia'].isin(house_list), 'Tipologia'] = 'altro'
+	data['Tipologia_casa'] = data['Tipologia_casa'].mask(mask, 'altro')
 	return data
 
 
@@ -248,29 +235,45 @@ def create_year_bins(data):
 
 def create_heating(data):
 	"""Create centralized/autonomous heating feature."""
-	data['Riscaldamento_A_C'] = data['Riscaldamento'].str.split(',').str[0].str.lower()
-
-	# Impute by constant value which does not cause data leakage
-	data['Riscaldamento_A_C'] = data['Riscaldamento_A_C'].fillna('centralizzato')
+	data['Riscaldamento_A_C'] = (data['Riscaldamento']
+								 .str.lower()
+								 .str.extract('(centralizzato|autonomo)')
+								 .fillna('centralizzato'))
 	return data
 
 
 def create_heating_type(data):
 	"""Create heating type feature."""
-	data['Tipo_riscaldamento'] = data['Riscaldamento'].str.extract(r'(radiatori|aria|pavimento|stufa)')
+	data['Tipo_riscaldamento'] = data['Riscaldamento'].str.extract('(radiatori|aria|pavimento|stufa)')
 	return data
 
 
 def create_heating_source(data):
 	"""Create heating source feature."""
-	data['Alimentazione_riscaldamento'] = data['Riscaldamento'].str.extract(r'(metano|gas|gasolio|pompa di calore'
+	data['Alimentazione_riscaldamento'] = data['Riscaldamento'].str.extract('(metano|gas|gasolio|pompa di calore'
 																			'|elettrica|fotovoltaico|pellet|gpl|solare)')
 	return data
 
 
-def create_energy_class(data):
-	"""Create energy class feature."""
-	data['Classe_energetica'] = data['Efficienza energetica'].str.extract(r'([A-G]\d?)')
+def create_air_conditioning(data):
+	"""Create air conditioning feature by extracting relevant information."""
+	data['Climatizzazione'] = (data['Climatizzazione']
+							   .str.lower()
+							   .str.extract('(predisposizione|autonomo|centralizzato)')
+							   .fillna('non presente'))
+	return data
+
+
+def create_energy_efficiency(data):
+	"""Create energy efficiency feature by grouping the energy classes into three groups."""
+	mask1 = data['Efficienza energetica'].str.contains('A\d?', na=False)
+	mask2 = data['Efficienza energetica'].str.contains('[B-D]', na=False)
+	mask3 = data['Efficienza energetica'].str.contains('[E-G]', na=False)
+
+	conditions = [mask1, mask2, mask3]
+	choices = ['alta (A, A+, A1-A4)', 'media (B, C, D)', 'bassa (E, F, G)']
+
+	data['Efficienza_energetica'] = pd.Series(np.select(conditions, choices, np.nan)).replace({'nan': np.nan})
 	return data
 
 
@@ -280,98 +283,70 @@ def create_listing_date(data):
 							 .str.split('-')
 							 .str[-1]
 							 .str.strip()
-							 .astype('datetime64[D]')
-							 )
+							 .astype('datetime64[D]'))
 	return data
 
 
 def create_elevator(data):
 	"""Create elevator feature."""
-	mask = data['Piano'].str.match(r'.*ascensore.*').fillna(False)
-	data.loc[mask, 'Ascensore'] = 'sì'
-
-	# Impute by constant value which does not cause data leakage
-	data['Ascensore'] = data['Ascensore'].fillna('no')
+	mask = data['Piano'].str.contains('ascensore', na=False)
+	data['Ascensore'] = np.where(mask, 'sì', 'no')
 	return data
 
 
 def create_disabled_access(data):
 	"""Create disabled access feature."""
-	mask = data['Piano'].str.match(r'.*accesso disabili.*').fillna(False)
-	data.loc[mask, 'Accesso_disabili'] = 'sì'
-
-	# Impute by constant value which does not cause data leakage
-	data['Accesso_disabili'] = data['Accesso_disabili'].fillna('no')
+	mask = data['Piano'].str.contains('accesso disabili', na=False)
+	data['Accesso_disabili'] = np.where(mask, 'sì', 'no')
 	return data
 
 
-def create_floor(data):  # TODO: there has got to be a better way to create this feature
+def create_floor(data):
 	"""Create floor feature."""
-	mask1 = data['Piano'].str.match(r'.*\d+°.*').fillna(False)
-	mask2 = data['Piano'].str.match(r'.*[pP]iano terra.*').fillna(False)
-	mask3 = data['Piano'].str.match(r'[uU]ltimo.*').fillna(False)
-	mask4 = data['Piano'].str.match(r'[pP]iano rialzato.*').fillna(False)
-	mask5 = data['Piano'].str.match(r'.*[sS]eminterrato.*').fillna(False)
-	mask6 = data['Piano'].str.match(r'.*[aA]mmezzato.*').fillna(False)
-	mask7 = data['Piano'].str.match(r'.*[iI]nterrato.*').fillna(False)
-	mask8 = data['Piano'].str.match(r'(.*da.*|.*più livelli.*)').fillna(False)
-	mask9 = data['Piano'].str.match(r'.*Oltre il decimo piano.*').fillna(False)
+	mask1 = data['Piano'].str.lower().str.contains('\d+°|oltre il decimo piano|su più livelli', na=False)
+	mask2 = data['Piano'].str.lower().str.contains('seminterrato|interrato|ammezzato', na=False)
+	mask3 = data['Piano'].str.lower().str.contains('terra|piano rialzato', na=False)
+	mask4 = data['Piano'].str.lower().str.contains('ultimo', na=False)
+	mask5 = (data['Totale piani edificio'].str.extract('(\d+)', expand=False) ==
+			 data['Piano'].str.extract('(\d+)', expand=False))
 
-	data.loc[mask1, 'Piani'] = data.loc[mask1, 'Piano'].str.extract(r'(\d+°)').values
-	data.loc[mask2, 'Piani'] = 'terra'
-	data.loc[mask3, 'Piani'] = 'ultimo'
-	data.loc[mask4, 'Piani'] = 'rialzato'
-	data.loc[mask5, 'Piani'] = 'seminterrato'
-	data.loc[mask6, 'Piani'] = 'ammezzato'
-	data.loc[mask7, 'Piani'] = 'interrato'
-	data.loc[mask8, 'Piani'] = 'più livelli'
-	data.loc[mask9, 'Piani'] = 'oltre il decimo'
+	data['Piano'] = (data['Piano']
+					 .mask(mask1, 'intermedio')
+					 .mask(mask2, 'interrato')
+					 .mask(mask3, 'terra')
+					 .mask(mask4 | mask5, 'ultimo'))
 	return data
 
 
 def create_garage_parking(data):
 	"""Create garage parking feature."""
-	data['Posti_garage'] = data['Posti auto'].str.extract(r'(\d).*garage\/box').astype('float')
-
-	# Impute by constant value which does not cause data leakage
-	data['Posti_garage'] = data['Posti_garage'].fillna(0)
+	data['Posti_garage'] = data['Posti auto'].str.extract('(\d).*garage\/box').astype('float').fillna(0)
 	return data
 
 
 def create_external_parking(data):
 	"""Create external parking feature."""
-	data['Posti_esterni'] = data['Posti auto'].str.extract(r'(\d+).*esterno').astype('float')
-
-	# Impute by constant value which does not cause data leakage
-	data['Posti_esterni'] = data['Posti_esterni'].fillna(0)
+	data['Posti_esterni'] = data['Posti auto'].str.extract('(\d+).*esterno').astype('float').fillna(0)
 	return data
 
 
 def create_num_bathrooms(data):
 	"""Create number of bathrooms feature."""
 	data['Num_bagni'] = data['Locali'].str.extract(r'(\d\+?) bagn\w')
-	data.loc[data['Num_bagni'] == '3+', 'Num_bagni'] = 4  # Set 3+ toilets to 4
-	data['Num_bagni'] = data['Num_bagni'].astype('float')
+	data['Num_bagni'] = data['Num_bagni'].mask(data['Num_bagni'] == '3+', 4)  # Set 3+ toilets to 4
 	return data
 
 
 def create_num_rooms(data):
 	"""Create number of rooms feature."""
 	# All types of rooms
-	data['Num_altri'] = data['Locali'].str.extract(r'(\d+\+?) altr\w').astype('float')
-	data['Num_altri'] = data['Num_altri'].fillna(0)  # Set NaNs to 0 to be able to sum
-
-	data['Num_camere_letto'] = data['Locali'].str.extract(r'(\d+\+?) camer\w da letto').astype('float')
-	data['Num_camere_letto'] = data['Num_camere_letto'].fillna(0)  # Set NaNs to 0 to be able to sum
-
-	data['Num_locali'] = data['Locali'].str.extract(r'(\d+\+?) local\w').astype('float')
-	data['Num_locali'] = data['Num_locali'].fillna(0)  # Set NaNs to 0 to be able to sum
+	data['Num_altri'] = data['Locali'].str.extract('(\d+\+?) altr\w').astype('float64').fillna(0)
+	data['Num_camere_letto'] = data['Locali'].str.extract('(\d+\+?) camer\w da letto').astype('float64').fillna(0)
+	data['Num_locali'] = data['Locali'].str.extract(r'(\d+\+?) local\w').astype('float64').fillna(0)
 
 	# Total number of rooms
-	data['Num_tot_locali'] = data['Num_locali'] + data['Num_camere_letto'] + data['Num_altri']
-
-	# Set values of "0" to "np.nan" for imputation later
-	data.loc[data['Num_tot_locali'] == 0, 'Num_tot_locali'] = np.nan
+	data['Num_tot_locali'] = ((data['Num_altri'] + data['Num_camere_letto'] + data['Num_locali'])
+							  .mask(data['Locali'].isna(), np.nan))
 	return data
 
 
@@ -449,27 +424,11 @@ def create_other_features(data):
 	features_list = ['Fibra ottica', 'Cancello elettrico', 'Cantina', 'Impianto di allarme', 'Mansarda', 'Taverna',
 					 'Cablato', 'Idromassaggio', 'Piscina']
 
-	# Create one-hot encoded column for each extracted feature
+	# Create column for each extracted feature
 	for feature in features_list:
 		mask = data['Altre_caratteristiche'].apply(lambda x: feature in x)
-		data.loc[mask, feature] = 'sì'
-		data[feature] = data[feature].fillna('no')
+		data[feature] = np.where(mask, 'sì', 'no')
 	return data
-
-
-def data_split(test_size=0.2):
-	"""Split the dataset into a training and a test set."""
-
-	def splitter(data):
-		return train_test_split(data, test_size=test_size, random_state=0)
-
-	return splitter
-
-
-def save_data(data, path, name):
-	"""Save model as pickle file."""
-	with open(path + name, 'wb') as f:
-		pickle.dump(data, f, protocol=4)
 
 
 def create_pipeline(list_functions):
