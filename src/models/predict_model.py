@@ -5,20 +5,10 @@ from pathlib import Path
 from dotenv import find_dotenv, load_dotenv
 import numpy as np
 import pandas as pd
-from sklearn.pipeline import Pipeline
-from src.features import parse_config, clean_data
+from src.features import parse_config
 from src.visualization import plot_predictions
-from src.models import preprocessing_pipeline, Model
-from src.deployment import user_input_features
-
-from sklearn.model_selection import KFold
-from sklearn.linear_model import LinearRegression, Ridge, ElasticNet
-from sklearn.svm import SVR
-from sklearn.tree import DecisionTreeRegressor
-from sklearn.ensemble import RandomForestRegressor, ExtraTreesRegressor
-from sklearn.neighbors import KNeighborsRegressor
-from sklearn.ensemble import GradientBoostingRegressor, AdaBoostRegressor
-from sklearn.model_selection import GridSearchCV
+from src.models import Model
+from sklearn.metrics import mean_squared_error
 
 
 @click.command()
@@ -36,19 +26,28 @@ def main(input_filepath, model_filepath, output_filepath, config_file):
 
 	# Load data
 	X_train = pd.read_csv(input_filepath + '/X_train.csv')
+	y_train = pd.read_csv(input_filepath + '/y_train.csv').values.ravel()
+
 	X_test = pd.read_csv(input_filepath + '/X_test.csv')
-	y_train = pd.read_csv(input_filepath + '/y_train.csv')
-	y_test = pd.read_csv(input_filepath + '/y_test.csv')
+	y_test = pd.read_csv(input_filepath + '/y_test.csv').values.ravel()
 
 	# Load model
 	model = Model.load(model_filepath + config['predicting']['model_name'])
 
 	# Make predictions
-	train_preds = model.predict(X_train)
-	test_preds = model.predict(X_test)
+	train_pred = model.predict(X_train)
+	test_pred = model.predict(X_test)
+
+	# Evaluate model
+	train_score = np.sqrt(mean_squared_error(y_train, train_pred))
+	test_score = np.sqrt(mean_squared_error(y_test, test_pred))
 
 	# Plot predictions
-	pred_plots = plot_predictions(train_preds, test_preds, y_train, y_test)
+	scores = (
+		(r'$RMSE={:,.0f}$' + ' EUR').format(train_score),
+		(r'$RMSE={:,.0f}$' + ' EUR').format(test_score),
+	)
+	pred_plots = plot_predictions(scores, train_pred, test_pred, y_train, y_test)
 	pred_plots.savefig(output_filepath + '/pred_plots.png')
 
 

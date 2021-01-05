@@ -10,6 +10,8 @@ class Model:
 
 		if type(self.model).__name__ == 'Pipeline':
 			self.name = type(self.model.named_steps['model']).__name__
+			if type(self.model.named_steps['model']).__name__ == 'TransformedTargetRegressor':
+				self.name = type(self.model.named_steps['model'].regressor).__name__
 		else:
 			self.name = type(self.model).__name__
 

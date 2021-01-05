@@ -7,10 +7,9 @@ import numpy as np
 import pandas as pd
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import KFold
-from sklearn.metrics import mean_squared_error
-from sklearn.ensemble import RandomForestRegressor
-
-from src.features import parse_config
+from sklearn.compose import TransformedTargetRegressor
+from sklearn.svm import SVR
+from src.features import parse_config, rng
 from src.models import preprocessing_pipeline, Model
 
 
@@ -26,41 +25,26 @@ def main(input_filepath, output_filepath, config_file):
 	# Parse config file
 	config = parse_config(config_file)
 
-	# Load data
+	# Load training data
 	X_train = pd.read_csv(input_filepath + '/X_train.csv')
-	y_train = pd.read_csv(input_filepath + '/y_train.csv').values
-	X_test = pd.read_csv(input_filepath + '/X_test.csv')
-	y_test = pd.read_csv(input_filepath + '/y_test.csv').values
+	y_train = pd.read_csv(input_filepath + '/y_train.csv').values.ravel()
 
 	# Pre-processing and modeling pipeline
-	cat_features = X_train.select_dtypes(include='object').columns
-	num_features = X_train.select_dtypes(exclude='object').columns
+	cat_features = X_train.select_dtypes(exclude='float64').columns
+	num_features = X_train.select_dtypes(include='float64').columns
 
 	pipe = Pipeline([
 		('preprocessing', preprocessing_pipeline(cat_features, num_features)),
-		('model', RandomForestRegressor())
+		('model', TransformedTargetRegressor(regressor=SVR(), func=np.log1p, inverse_func=np.expm1))
 	])
 
-	# Tune model
-	kf = KFold(config['modeling']['num_folds'], shuffle=True,
-			   random_state=config['seeding']['seed']).get_n_splits(X_train.values)
-	param_grid = {
-		'model__n_estimators': [5, 20, 50, 100],
-		'model__min_samples_split': [2, 8, 10],
-		'model__max_features': [2, 5, 10]
-	}
+	# Tune or select model
+	kf = KFold(config['modeling']['num_folds'], shuffle=True, random_state=rng).get_n_splits(X_train.values)
 
-	model = Model.tune(pipe, X_train, y_train.ravel(), param_grid, cv=kf)
+	model = Model(model=pipe)
 
 	# Train model
-	model.train(X_train, y_train.ravel())
-
-	# Evaluate model
-	train_preds = model.predict(X_train)
-	test_preds = model.predict(X_test)
-
-	print('Training set RSME for {} model: {}'.format(model.name, np.sqrt(mean_squared_error(y_train, train_preds))))
-	print('Test set RSME for {} model: {}'.format(model.name, np.sqrt(mean_squared_error(y_test, test_preds))))
+	model.train(X_train, y_train)
 
 	# Save model
 	model.save(output_filepath + model.name + '.pkl')
