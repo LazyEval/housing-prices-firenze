@@ -37,15 +37,15 @@ def boxplot(data, columns, log=False):
 
 
 def create_hue(data):
+	"""Create hue feature to group districts in scatterplot."""
 	gb_ordered = data.groupby('Zona').agg({'Prezzo_per_m2': 'mean'}).sort_values('Prezzo_per_m2', ascending=False)
 
 	mask1 = data['Zona'].isin(gb_ordered[gb_ordered['Prezzo_per_m2'] < 3500].index)
-	mask2 = data['Zona'].isin(gb_ordered[gb_ordered['Prezzo_per_m2'] >= 4500].index)
-	mask3 = (data['Zona'].isin(gb_ordered[gb_ordered['Prezzo_per_m2'] < 4500].index)) & \
-			(data['Zona'].isin(gb_ordered[gb_ordered['Prezzo_per_m2'] >= 3500].index))
+	mask2 = data['Zona'].isin(gb_ordered[gb_ordered['Prezzo_per_m2'] > 4500].index)
+	mask3 = (data['Zona'].isin(gb_ordered[gb_ordered['Prezzo_per_m2'].between(3500, 4500)].index))
 
 	conditions = [mask1, mask2, mask3]
-	choices = ['< 3500 EUR/m2', '> 4500 EUR/m2', '[3500, 4500) EUR/m2']
+	choices = ['< 3500 EUR/m2', '> 4500 EUR/m2', '[3500, 4500] EUR/m2']
 	data['hue'] = np.select(conditions, choices)
 	return data
 
@@ -62,8 +62,8 @@ def scatterplot(data, x_col, y_col, hue_data, log=False):
 		plt.title('Log price vs. log square meters', size=16)
 	else:
 		sns.scatterplot(x=data[x_col], y=data[y_col], hue=hue_data)
-		plt.xlabel('{}'.format(x_col), size=14)
-		plt.ylabel('{}'.format(y_col), size=14)
+		plt.xlabel('{} [m2]'.format(x_col), size=14)
+		plt.ylabel('{} [EUR]'.format(y_col), size=14)
 		plt.title('Price vs. square meters', size=16)
 	plt.legend(title='Grouped districts', title_fontsize=14, fontsize=14)
 	plt.tight_layout()
@@ -126,6 +126,7 @@ def correlation_plot(data, corr_cols):
 def plot_predictions(scores, train_values, test_values, train_labels, test_labels=None):
 	"""Create scatter plots of the training set and cross-validation values vs. the true values."""
 	fig, ax = plt.subplots(figsize=(16, 8))
+	sns.set_style('whitegrid')
 
 	ax1 = plt.subplot(1, 2, 1)
 	ax1.scatter(train_labels, train_values, edgecolors=(0, 0, 0))
@@ -137,7 +138,7 @@ def plot_predictions(scores, train_values, test_values, train_labels, test_label
 	ax1.set_title('Training set results', size=14)
 
 	ax2 = plt.subplot(1, 2, 2)
-	if test_labels:
+	if test_labels.any():
 		ax2.scatter(test_labels, test_values, edgecolors=(0, 0, 0))
 		ax2.plot([test_labels.min(), test_labels.max()], [test_labels.min(), test_labels.max()], 'r--', lw=4)
 		ax2.set_title('Test set results', size=14)
@@ -155,10 +156,26 @@ def plot_predictions(scores, train_values, test_values, train_labels, test_label
 
 
 def plot_model_comparison(results, names):
-	"""Create boxplots of the model results."""
-	fig = plt.figure(figsize=(10, 10))
-	fig.title('Comparison of algorithms', size=14)
-	ax = fig.add_subplot(111)
-	plt.boxplot(results)
+	"""Create boxplots of the model results for comparison."""
+	fig, ax = plt.subplots(figsize=(10, 10))
+	ax.boxplot(results)
+	ax.set_title('Comparison of algorithms', size=14)
 	ax.set_xticklabels(names)
+	ax.set_xlabel("Model", size=12)
+	ax.set_ylabel("RMSE", size=12)
+
+	plt.tight_layout()
+	return fig
+
+
+def plot_feature_importance(features, n_features, std=None):
+	"""Create plot of linear coefficients from linear ridge regression model."""
+	ax = features.sort_values(key=abs, ascending=False)[:n_features].plot(kind='barh',
+																		  yerr=std,
+																		  figsize=(12, 10),
+																		  legend=False)
+	fig = ax.get_figure()
+	plt.title(f'Feature importance - top {n_features} features', size=14)
+	plt.axvline(x=0, color='.5')
+	plt.subplots_adjust(left=.3)
 	return fig
