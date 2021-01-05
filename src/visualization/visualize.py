@@ -25,7 +25,7 @@ def main(input_filepath, output_filepath, config_file):
 	df = pd.read_csv(input_filepath + '/data_clean.csv')
 
 	# Histograms
-	histograms = histogram(df, config['visualizing']['continuous_vars'], log=False)
+	histograms = histogram(df, config['visualizing']['continuous_vars'], log=True)
 	histograms.savefig(output_filepath + '/histograms.png')
 
 	# Boxplots
