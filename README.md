@@ -1,7 +1,7 @@
-Housing price estimator: Project overview
+Housing price estimator: project overview
 --
-- Created a tool to estimate the price of a home (RMSLE ~ 0.18) in Firenze, Italy based on data from October 2020.
-- Scraped over 9000 house listings from Immobiliari using Python.
+- Created a tool to estimate the price of a home (RMSE ~ 60K EUR) in Firenze, Italy based on data from October 2020.
+- Scraped over 9000 house listings from *immobiliare.it* using Python.
 - Built a data cleaning pipeline and extracted features such as district, total number of rooms, heating, and energy class.
 - Performed EDA to better understand the data and the influence of each of the features on price.
 - Built a pre-processing pipeline including various regression models to select the best model.
@@ -9,23 +9,35 @@ Housing price estimator: Project overview
 - TODO: implement testing.
 - TODO: containerization with docker.
 
+Problems encountered
+--
+The main problems encountered in this project were the following:
+- The target variable that was collected from the website represents the list price as opposed to the sale price.
+- Modeling results were not very satisfactory, especially at first:
+    - it was found that there were a lot of outliers in the data
+    - most of these were due to bad data inserted on the website with price/m2 ratios which did not make sense
+    - to solve this, an in-depth look at the outliers was made before removing a large part of them
+- A lot of data was missing, and some of it important, such as the year of construction.
+
 Code and resources
 --
-**Python version**: 3.8  
-**Packages**: python-dotenv, requests, setuptools, beautifulsoup4, lxml, numpy, pandas, scikit-learn, matplotlib, seaborn, scipy  
+**Python version**: 3.8
+**Packages**: python-dotenv, requests, setuptools, beautifulsoup4, lxml, numpy, pandas, scikit-learn, matplotlib, seaborn, scipy, pyyaml, joblib, streamlit
 **Requirements**: `pip install -r requirements.txt`
 
 Web scraping
 --
-Scraped 9000 house listings on immobiliari.it and got the following data:
+Scraped 9000 house listings on *immobiliare.it* and got the following data:
 - Price
 - Square meters
 - District
+- Year of construction
 - Type of property
 - Category
-- State of the house
+- Condition
 - Heating
-- Energy class
+- Air condition
+- Energy efficiency
 - Number of rooms
 - Floors
 - Other features
@@ -37,8 +49,9 @@ After scraping the data from the web, I created a data cleaning pipeline where I
 - Dropped rows corresponding to homes that are not located in Firenze
 - Manually imputed missing districts
 - Drop rows with missing values in price and square meters
-- Extracted price, square meters, state of the house
-- Feature engineered price/m<sup>2</sup>, heating, energy class, elevator, disabled access, floor, parking, number of bathrooms, number of rooms, other features (created a new column for each)
+- Extracted price, square meters, type of property, condition of the house
+- Feature engineered price/m<sup>2</sup>, heating, air conditioning, energy efficiency, elevator, disabled access, floor, parking, number of bathrooms, number of rooms, other features (created a new column for each)
+- Removed outliers in the price, square meters and price/m<sup>2</sup> features.
 
 Exploratory data analysis
 --
@@ -48,31 +61,44 @@ I looked at the distributions, boxplots and scatter plots of the data to get a b
 <img src="https://github.com/LazyEval/housing-prices-firenze/blob/master/reports/figures/scatter.png" width="800">
 <img src="https://github.com/LazyEval/housing-prices-firenze/blob/master/reports/figures/corr_plot.png" width="600">
 
+For more details on the exploratory data analysis, please refer to my [EDA notebook](https://github.com/LazyEval/housing-prices-firenze/blob/master/notebooks/2.0-LazyEval-EDA.ipynb).
+
 Model building
 --
-I created a few pre-processing pipelines for various models, including different transformations or imputations on the data. The data was split into training and test (20 %) sets so as to avoid data leakage and cross-validation on the pipelines was used to evaluate the model performance on unseen data and for tuning. Model selection was based on the performance on cross-validation and the test set was only used to evaluate the performance of the final model.
+I created a few pre-processing pipelines for various models, including different transformations or imputations on the data. The data was split into training and test (20 %) sets so as to avoid data leakage, and cross-validation on the pipelines was used to evaluate the model performance on unseen data and for tuning. Model selection was based on the performance during cross-validation and the test set was only used to evaluate the performance of the final model.
 
-The chosen metric is the Root Mean Squared Error (RMSE) as it is found to be more robust to outliers which seem to be abundantly present in the dataset.
+The chosen metric is the Root Mean Squared Error (RMSE) so as to penalize larger errors in prediction.
 
 The following models were tried:
-- **Multiple linear regression** — baseline model.
+- **Ridge regression** — baseline model.
 - **Support vector regressor** — the relationship between the predictors and the target variable does not seem to be strictly linear, so I chose a non-linear SVR which yielded better results.
-- **Ensemble models** — I tried a series of more complex models to see how they would fit the data and generalize. As expected these models would tend to overfit the data.
+- **Ensemble models** — I tried a series of more complex models to see how they would fit the data and generalize. Most of these models would tend to overfit the data.
+
+Ridge regression and the random forest regressor illustrate feature importance:
+
+<img src="https://github.com/LazyEval/housing-prices-firenze/blob/master/reports/figures/linear_coefs.png" width="450"> | <img src="https://github.com/LazyEval/housing-prices-firenze/blob/master/reports/figures/feature_importance.png" width="450">
 
 Model performance
 --
-The figure below compares the performance of the various algorithms that were tried during modeling **using cross validation**:
+The figure below compares the performance of the various algorithms **using cross-validation**:
 
 <img src="https://github.com/LazyEval/housing-prices-firenze/blob/master/reports/figures/algo_comparison.png" width="700">
 
-It is clear that the SVR model performed best and I therefore chose to select that model and tune it to create the final estimator. The figure below plots the predictions of the final estimator both on the training and on the test set:
+The SVR, random forest regressor and extra tree regressor models performed best and I therefore chose to select the SVR model. The figure below plots the predictions of the final estimator both on the training and on the test set:
 <img src="https://github.com/LazyEval/housing-prices-firenze/blob/master/reports/figures/pred_plots.png" width="1200">
 
-The RMSE of the final model used on the test set is 0.18.
+The RMSE of the final model used on the test set is 60'000 EUR.
 
-Deployment
+For more details on my model selection process be sure to take a look at my [modeling notebook](https://github.com/LazyEval/housing-prices-firenze/blob/master/notebooks/3.0-LazyEval-modeling.ipynb).
+
+Model deployment
 --
 The model was deployed using the streamlit library. The script that is run by streamlit was integrated into the project workflow so that predictions are made instantly. The API endpoint takes in a request with a set of values (that correspond to features of the house) inserted by the user and returns an estimated price.
+
+Improvements
+--
+- Sale prices should be collected as opposed to list prices.
+- A comparison could be made between this estimator and the one on *immobiliare.it* by making predictions on a number of houses.
 
 Project organization
 --
