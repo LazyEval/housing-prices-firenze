@@ -40,6 +40,7 @@ def clean_data(config):
 		clean_outliers('Superficie', 6437.0, 64.0),
 		create_price_sqm,
 		filter_data('Prezzo_per_m2', 2500, 7000),
+		remove_outliers_iqr(['Prezzo', 'Superficie']),
 		create_property_class,
 		create_property_type,
 		create_house_type,

@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 from dotenv import find_dotenv, load_dotenv
 from sklearn.model_selection import train_test_split
-from src.features import parse_config, load_raw_data, clean_data
+from src.features import parse_config, load_raw_data, clean_data, rng
 
 
 @click.command()
@@ -33,7 +33,7 @@ def main(input_filepath, output_filepath, config_file):
 	y = df_clean[target]
 
 	# Split data
-	X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=config['seeding']['seed'])
+	X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=rng)
 
 	# Save X and y sets for modeling
 	datasets = [X_train, X_test, y_train, y_test]
