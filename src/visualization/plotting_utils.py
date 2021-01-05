@@ -136,21 +136,21 @@ def plot_predictions(scores, train_values, test_values, train_labels, test_label
 	ax1.set_xlabel('Measured')
 	ax1.set_ylabel('Predicted')
 	ax1.set_title('Training set results', size=14)
-
+	print(type(test_labels))
 	ax2 = plt.subplot(1, 2, 2)
-	if test_labels.any():
-		ax2.scatter(test_labels, test_values, edgecolors=(0, 0, 0))
-		ax2.plot([test_labels.min(), test_labels.max()], [test_labels.min(), test_labels.max()], 'r--', lw=4)
-		ax2.set_title('Test set results', size=14)
-	else:
+	if not test_labels:
 		ax2.scatter(train_labels, test_values, edgecolors=(0, 0, 0))
 		ax2.plot([train_labels.min(), train_labels.max()], [train_labels.min(), train_labels.max()], 'r--', lw=4)
 		ax2.set_title('Cross-validation results', size=14)
+
+	else:
+		ax2.scatter(test_labels, test_values, edgecolors=(0, 0, 0))
+		ax2.plot([test_labels.min(), test_labels.max()], [test_labels.min(), test_labels.max()], 'r--', lw=4)
+		ax2.set_title('Test set results', size=14)
 	extra = plt.Rectangle((0, 0), 0, 0, fc="w", fill=False, edgecolor='none', linewidth=0)
 	ax2.legend([extra], [scores[1]], loc='best', fontsize=14)
 	ax2.set_xlabel('Measured')
 	ax2.set_ylabel('Predicted')
-
 	plt.tight_layout()
 	return fig
 
@@ -163,19 +163,19 @@ def plot_model_comparison(results, names):
 	ax.set_xticklabels(names)
 	ax.set_xlabel("Model", size=12)
 	ax.set_ylabel("RMSE", size=12)
-
 	plt.tight_layout()
 	return fig
 
 
-def plot_feature_importance(features, n_features, std=None):
+def plot_feature_importance(title, features, n_features, std=None):
 	"""Create plot of linear coefficients from linear ridge regression model."""
 	ax = features.sort_values(key=abs, ascending=False)[:n_features].plot(kind='barh',
 																		  yerr=std,
 																		  figsize=(12, 10),
 																		  legend=False)
 	fig = ax.get_figure()
-	plt.title(f'Feature importance - top {n_features} features', size=14)
+	plt.title(f'{title} - top {n_features} features', size=14)
 	plt.axvline(x=0, color='.5')
 	plt.subplots_adjust(left=.3)
+	plt.tight_layout()
 	return fig
