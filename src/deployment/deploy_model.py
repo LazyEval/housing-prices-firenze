@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
 from pathlib import Path
-#from dotenv import find_dotenv, load_dotenv
 import streamlit as st
 from src.features import parse_config
 from src.deployment import user_input_features, predict
@@ -19,17 +18,20 @@ def main(model_filepath='models/', config_file='config.yml'):
 	X = user_input_features()
 
 	# Write to front-end
-	st.title('Housing price estimator for Florence, Italy.')
+	st.set_page_config(page_title='Housing price estimator for Florence, Italy.', layout='wide')
 	st.subheader('Created by Matteo Latinov')
 
-	st.markdown('This estimator was created with the purpose to get an estimate of the price of a house in Florence, '
-				'Italy based on a series of features. The model is based on data collected from *immobiliari.it* in'
-				' October 2020.  \n  \n Feel free to try it out and let me know what you think!')
+	st.markdown('This estimator was created with the purpose of obtaining an approximate list price for a house in'
+				' Florence, Italy based on a set of features or attributes of the home. The model was built with data'
+				' collected from *immobiliari.it* in October 2020.  \n  \n Feel free to try it out and let me know what'
+				' you think!')
 
 	if st.button('Estimate the value of your house'):
 		prediction = predict(model_filepath, config, X)
 		st.markdown('Estimated price for this house:')
-		st.success('{:,} EUR'.format(prediction))
+		st.success('{:,.0f} EUR'.format(prediction))
+
+	st.sidebar.header('Input your data here.')
 
 
 if __name__ == '__main__':
@@ -38,9 +40,5 @@ if __name__ == '__main__':
 
 	# not used in this stub but often useful for finding various files
 	project_dir = Path(__file__).resolve().parents[2]
-
-	# find .env automagically by walking up directories until it's found, then
-	# load up the .env entries as environment variables
-#	load_dotenv(find_dotenv())
 
 	main()
