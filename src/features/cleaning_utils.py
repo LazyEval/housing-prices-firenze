@@ -387,15 +387,15 @@ def create_garden(data):
 	data['Giardino'] = (data['Altre_caratteristiche']
 						.apply(lambda x: str([y for y in x if 'Giardino' in y]))
 						.str.extract('(comune|privato)', expand=False)
-						.fillna('no'))
+						.fillna('non presente'))
 	return data
 
 
 def create_furnished(data):
 	"""Create furnished feature."""
 	data['Arredato'] = data['Altre_caratteristiche'].apply(lambda x: str([y for y in x if 'Arredat' in y]))
-	data['Arredato'] = data['Arredato'].replace({'[\'Parzialmente Arredato\']': 'parzialmente',
-												 '[\'Solo Cucina Arredata\']': 'parzialmente',
+	data['Arredato'] = data['Arredato'].replace({'[\'Parzialmente_Arredato\']': 'parzialmente',
+												 '[\'Solo_Cucina_Arredata\']': 'parzialmente',
 												 '[\'Arredato\']': 'totalmente',
 												 '[]': 'no'})
 	return data
@@ -422,7 +422,7 @@ def create_exposure(data):
 def create_other_features(data):
 	"""Create columns for each other feature extracted."""
 	# Features list
-	features_list = ['Fibra ottica', 'Cancello elettrico', 'Cantina', 'Impianto di allarme', 'Mansarda', 'Taverna',
+	features_list = ['Fibra_ottica', 'Cancello_elettrico', 'Cantina', 'Impianto_di_allarme', 'Mansarda', 'Taverna',
 					 'Cablato', 'Idromassaggio', 'Piscina']
 
 	# Create column for each extracted feature

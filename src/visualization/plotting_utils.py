@@ -136,7 +136,7 @@ def plot_predictions(scores, train_values, test_values, train_labels, test_label
 	ax1.set_xlabel('Measured')
 	ax1.set_ylabel('Predicted')
 	ax1.set_title('Training set results', size=14)
-	print(type(test_labels))
+
 	ax2 = plt.subplot(1, 2, 2)
 	if not test_labels:
 		ax2.scatter(train_labels, test_values, edgecolors=(0, 0, 0))
