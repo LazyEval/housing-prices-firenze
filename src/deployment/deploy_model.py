@@ -15,7 +15,7 @@ def main(model_filepath='models/', config_file='config.yml'):
 	config = parse_config(config_file)
 
 	# Front-end page setup
-	st.set_page_config(page_title='Housing price estimator for Florence, Italy.', layout='wide')
+	st.set_page_config(page_title='Housing price estimator for Florence, Italy.', layout='centered')
 
 	# Load user input
 	X = user_input_features()
@@ -32,8 +32,6 @@ def main(model_filepath='models/', config_file='config.yml'):
 		prediction = predict(model_filepath, config, X)
 		st.markdown('Estimated price for this house:')
 		st.success('{:,.0f} EUR'.format(prediction))
-
-	st.sidebar.header('Input your data here.')
 
 
 if __name__ == '__main__':

@@ -6,6 +6,9 @@ from src.models import Model
 
 def user_input_features():
 	"""Define and user inputs as a DataFrame."""
+	# Header
+	st.sidebar.header('Input your data here.')
+
 	# Square meters
 	square_meters = st.sidebar.number_input('Square meters', 30, 1000, 65)
 
