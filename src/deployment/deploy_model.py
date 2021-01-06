@@ -14,13 +14,11 @@ def main(model_filepath='models/', config_file='config.yml'):
 	# Parse config file
 	config = parse_config(config_file)
 
-	# Front-end page setup
-	st.set_page_config(page_title='Housing price estimator for Florence, Italy.', layout='centered')
-
 	# Load user input
 	X = user_input_features()
 
 	# Write to front-end
+	st.title('Housing price estimator for Florence, Italy.')
 	st.subheader('Created by Matteo Latinov')
 
 	st.markdown('This estimator was created with the purpose of obtaining an approximate list price for a house in'
