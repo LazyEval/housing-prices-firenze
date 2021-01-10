@@ -110,7 +110,7 @@ def user_input_features():
 	# Furnished
 	values = ['no', 'parzialmente', 'totalmente']
 	default_ix = values.index('no')
-	furnished = st.sidebar.selectbox('Garden', values, index=default_ix)
+	furnished = st.sidebar.selectbox('Furnished', values, index=default_ix)
 
 	# Terrace
 	values = ['sì', 'no']
