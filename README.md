@@ -6,8 +6,7 @@ Housing price estimator: project overview
 - Performed EDA to better understand the data and the influence of each of the features on price.
 - Built a pre-processing pipeline including various regression models to select the best model.
 - Deployed the model using streamlit: [Housing price estimator](https://share.streamlit.io/lazyeval/housing-prices-firenze/src/deployment/deploy_model.py).
-- TODO: implement testing.
-- TODO: containerization with docker.
+- Used Docker to containerize the project.
 
 Problems encountered
 --
@@ -22,8 +21,15 @@ The main problems encountered in this project were the following:
 Code and resources
 --
 **Python version**: 3.8
+
 **Packages**: python-dotenv, requests, setuptools, beautifulsoup4, lxml, numpy, pandas, scikit-learn, matplotlib, seaborn, scipy, pyyaml, joblib, streamlit
+
 **Requirements**: `pip install -r requirements.txt`
+
+**Docker**:
+
+    docker build -t housing_prices_firenze .
+    docker run -dp 8501:8501 housing_prices_firenze
 
 Web scraping
 --
@@ -76,7 +82,7 @@ The following models were tried:
 
 Ridge regression and the random forest regressor illustrate feature importance:
 
-<img src="https://github.com/LazyEval/housing-prices-firenze/blob/master/reports/figures/linear_coefs.png" width="450"> | <img src="https://github.com/LazyEval/housing-prices-firenze/blob/master/reports/figures/feature_importance.png" width="450">
+<img src="https://github.com/LazyEval/housing-prices-firenze/blob/master/reports/figures/linear_coefs.png" width="400"> | <img src="https://github.com/LazyEval/housing-prices-firenze/blob/master/reports/figures/feature_importance.png" width="400">
 
 Model performance
 --
@@ -99,6 +105,7 @@ Improvements
 --
 - Sale prices should be collected as opposed to list prices.
 - A comparison could be made between this estimator and the one on *immobiliare.it* by making predictions on a number of houses.
+- Data validation and testing should be implemented.
 
 Project organization
 --
