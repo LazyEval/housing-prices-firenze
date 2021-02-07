@@ -121,14 +121,14 @@ def clean_price(data):
 
 def clean_sqm(data):
 	"""Clean the square meters feature."""
-	mask = data['Superficie'].str.contains('\|', na=False)
+	mask = data['Superficie'].str.contains(r'\|', na=False)
 
 	data['Superficie'] = (data['Superficie']
 						  .mask(mask, data['Superficie']
-								.str.extract('commerciale (\d+\.?\d*)', expand=False)
+								.str.extract(r'commerciale (\d+\.?\d*)', expand=False)
 								.str.replace('.', ''))
 						  .where(mask, data['Superficie']
-								 .str.extract('(\d+\.?\d*)', expand=False)
+								 .str.extract(r'(\d+\.?\d*)', expand=False)
 								 .str.replace('.', ''))
 						  .astype('float64'))
 	return data
@@ -267,7 +267,7 @@ def create_air_conditioning(data):
 
 def create_energy_efficiency(data):
 	"""Create energy efficiency feature by grouping the energy classes into three groups."""
-	mask1 = data['Efficienza energetica'].str.contains('A\d?', na=False)
+	mask1 = data['Efficienza energetica'].str.contains(r'A\d?', na=False)
 	mask2 = data['Efficienza energetica'].str.contains('[B-D]', na=False)
 	mask3 = data['Efficienza energetica'].str.contains('[E-G]', na=False)
 
@@ -304,12 +304,12 @@ def create_disabled_access(data):
 
 def create_floor(data):
 	"""Create floor feature."""
-	mask1 = data['Piano'].str.lower().str.contains('\d+°|oltre il decimo piano|su più livelli', na=False)
+	mask1 = data['Piano'].str.lower().str.contains(r'\d+°|oltre il decimo piano|su più livelli', na=False)
 	mask2 = data['Piano'].str.lower().str.contains('seminterrato|interrato|ammezzato', na=False)
 	mask3 = data['Piano'].str.lower().str.contains('terra|piano rialzato', na=False)
 	mask4 = data['Piano'].str.lower().str.contains('ultimo', na=False)
-	mask5 = (data['Totale piani edificio'].str.extract('(\d+)', expand=False) ==
-			 data['Piano'].str.extract('(\d+)', expand=False))
+	mask5 = (data['Totale piani edificio'].str.extract(r'(\d+)', expand=False) ==
+			 data['Piano'].str.extract(r'(\d+)', expand=False))
 
 	data['Piano'] = (data['Piano']
 					 .mask(mask1, 'intermedio')
@@ -321,13 +321,13 @@ def create_floor(data):
 
 def create_garage_parking(data):
 	"""Create garage parking feature."""
-	data['Posti_garage'] = data['Posti auto'].str.extract('(\d).*garage\/box').astype('float').fillna(0)
+	data['Posti_garage'] = data['Posti auto'].str.extract(r'(\d).*garage\/box').astype('float').fillna(0)
 	return data
 
 
 def create_external_parking(data):
 	"""Create external parking feature."""
-	data['Posti_esterni'] = data['Posti auto'].str.extract('(\d+).*esterno').astype('float').fillna(0)
+	data['Posti_esterni'] = data['Posti auto'].str.extract(r'(\d+).*esterno').astype('float').fillna(0)
 	return data
 
 
@@ -341,8 +341,8 @@ def create_num_bathrooms(data):
 def create_num_rooms(data):
 	"""Create number of rooms feature."""
 	# All types of rooms
-	data['Num_altri'] = data['Locali'].str.extract('(\d+\+?) altr\w').astype('float64').fillna(0)
-	data['Num_camere_letto'] = data['Locali'].str.extract('(\d+\+?) camer\w da letto').astype('float64').fillna(0)
+	data['Num_altri'] = data['Locali'].str.extract(r'(\d+\+?) altr\w').astype('float64').fillna(0)
+	data['Num_camere_letto'] = data['Locali'].str.extract(r'(\d+\+?) camer\w da letto').astype('float64').fillna(0)
 	data['Num_locali'] = data['Locali'].str.extract(r'(\d+\+?) local\w').astype('float64').fillna(0)
 
 	# Total number of rooms
