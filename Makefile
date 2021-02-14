@@ -20,9 +20,6 @@ endif
 # COMMANDS                                                                      #
 #################################################################################
 
-## Clean, data
-all: clean data features
-
 ## Install Python Dependencies
 requirements: test_environment
 	$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
@@ -37,16 +34,25 @@ features:
 	$(PYTHON_INTERPRETER) src/features/build_features.py data/interim data/processed
 
 ## Create plots
-visualize:
+visualize: features
 	$(PYTHON_INTERPRETER) src/visualization/visualize.py data/processed reports/figures
 
 ## Train model
-train:
+train: features
 	$(PYTHON_INTERPRETER) src/models/train_model.py data/processed models/
 
 ## Predict
-predict:
+predict: features
 	$(PYTHON_INTERPRETER) src/models/predict_model.py data/processed models/ reports/figures
+
+## Run app
+run:
+	streamlit run src/deployment/deploy_model.py
+
+## Run container
+run_container:
+	docker build -t $(PROJECT_NAME) .
+	docker run -dp 8501:8501 $(PROJECT_NAME)
 
 ## Delete all compiled Python files
 clean:
