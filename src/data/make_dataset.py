@@ -10,7 +10,8 @@ from src.data import WebScraper
 @click.argument('input_filepath', type=click.Path(exists=True))
 @click.argument('output_filepath', type=click.Path())
 def main(input_filepath, output_filepath):
-    """ Runs data collecting scripts to collect data and save it in ../interim."""
+    """Runs data collecting scripts to collect data and save it in
+    ../interim."""
     logger = logging.getLogger(__name__)
     logger.info('Collecting and saving data.')
 
@@ -19,7 +20,10 @@ def main(input_filepath, output_filepath):
     n_pages = 366
 
     # Collect data
-    scraper = WebScraper(raw_dir=input_filepath, interim_dir=output_filepath, website=website, n_pages=n_pages)
+    scraper = WebScraper(raw_dir=input_filepath,
+                         interim_dir=output_filepath,
+                         website=website,
+                         n_pages=n_pages)
     dataframes = scraper.get_data()
 
     # Save data
@@ -35,8 +39,8 @@ if __name__ == '__main__':
     # not used in this stub but often useful for finding various files
     project_dir = Path(__file__).resolve().parents[2]
 
-    # find .env automagically by walking up directories until it's found, then
-    # load up the .env entries as environment variables
+    # find .env automagically by walking up directories until it's
+    # found, then load up the .env entries as environment variables
     load_dotenv(find_dotenv())
 
     main()

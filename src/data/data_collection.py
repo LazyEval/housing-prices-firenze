@@ -116,12 +116,15 @@ class WebScraper:
                 html_soup = BeautifulSoup(response.text, 'lxml')
 
                 # Get area
-                area = html_soup.find('div', class_="im-relatedLink__container").find_all('a')
+                area = (html_soup
+                        .find('div', class_="im-relatedLink__container")
+                        .find_all('a'))
                 dicts[0]['zona'].append(area[-1]['href'][63:])
 
                 # Get address
                 addresses = html_soup.find_all(class_="im-location")
-                addresses_text = list(set([address.text for address in addresses]))
+                addresses_text = list(set([address.text for address in
+                                           addresses]))
                 dicts[0]['indirizzo'].append(addresses_text)
 
                 # Get tables

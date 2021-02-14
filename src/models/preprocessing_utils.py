@@ -14,7 +14,8 @@ class CustomEncoder(BaseEstimator, TransformerMixin):
             le.fit(X.loc[X[col].notna(), col])
             le_dict = dict(zip(le.classes_, le.transform(le.classes_)))
 
-            # Set unknown to new value so transform on test set handles unknown values
+            # Set unknown to new value so transform on test set handles
+            # unknown values
             max_value = max(le_dict.values())
             le_dict['_unk'] = max_value + 1
 
@@ -48,17 +49,22 @@ class ColumnSelector(BaseEstimator, TransformerMixin):
 
 def create_sqm_bins(data):
     """Create discretization of the square meters feature."""
-    data['Superficie_bins'] = pd.cut(data['Superficie_m2'], bins=[0, 60, 80, 100, 120, 160, 200, 20000])
+    data['Superficie_bins'] = pd.cut(data['Superficie_m2'], bins=[0, 60, 80,
+                                                                  100, 120,
+                                                                  160, 200,
+                                                                  20000])
     return data
 
 
 def imputation_with_bins(impute_col, bins_col):
-    """Impute missing values in number of bathrooms and number of rooms using the discretized square meters feature."""
+    """Impute missing values in number of bathrooms and number of rooms
+    using the discretized square meters feature."""
 
     def imputer(data):
         for sqm in data[bins_col].unique():
             mask = data[bins_col] == sqm
-            data.loc[mask & (data[impute_col] == 0), impute_col] = data.loc[mask, impute_col].value_counts().index[0]
+            data.loc[mask & (data[impute_col] == 0), impute_col] = data.loc[
+                mask, impute_col].value_counts().index[0]
         return data
 
     return imputer
