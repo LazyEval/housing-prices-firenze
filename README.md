@@ -24,12 +24,7 @@ Code and resources
 
 **Packages**: python-dotenv, requests, setuptools, beautifulsoup4, lxml, numpy, pandas, scikit-learn, matplotlib, seaborn, scipy, pyyaml, joblib, streamlit
 
-**Requirements**: `pip install -r requirements.txt`
-
-**Docker**:
-
-    docker build -t housing_prices_firenze .
-    docker run -dp 8501:8501 housing_prices_firenze
+**Running the app using Docker**: clone the repository and type `make run_container` in the terminal from the root directory of the project.
 
 Web scraping
 --
